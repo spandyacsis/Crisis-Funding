@@ -60,28 +60,54 @@ Procurement<-melt(Procurement
 
 Procurement$FiscalYear<-as.numeric(substring(as.character(Procurement$variable),4,7))
 Procurement$variable<-substring(as.character(Procurement$variable),9,999)
-unique(Procurement$variable)
-Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
-Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
-Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]<-
-    substring(as.character(Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]),7,999)
+Procurement$variable[Procurement$variable==""]<-"Actual"
+Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
+Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
+Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
+Procurement$variable<-ordered(Procurement$variable,c("PB",
+                                                     "App",
+                                                     "Actual",
+                                                     "CR",
+                                                     "CR.OCO",
+                                                     "OCO.PB",
+                                                     "OCO.App",
+                                                     "OCO.Sup",
+                                                     "Quant.PB",
+                                                     "Quant.App",
+                                                     "Quant.Actual",
+                                                     "Quant.CR",
+                                                     "Quant.CR.OCO",
+                                                     "Quant.OCO.PB",
+                                                     "Quant.OCO.App",
+                                                     "Quant.OCO.Sup"
+                                                     ))
+summary(Procurement$variable)
+Procurement<-subset(Procurement,!is.na(value))
+# unique(Procurement$variable)
+# Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
+# Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
+# Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]<-
+    # substring(as.character(Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]),7,999)
 
-Procurement$variable<-as.factor(Procurement$variable)
+Procurement<-dcast(Procurement, ID
+                   +Account
+                   +Budget.Activity
+                   +Budget.Activity.Title
+                   +BSA
+                   +BSA.Title
+                   +Line.Item
+                   +Line.Item.Title
+                   +Cost.Type
+                   +Cost.Type.Title
+                   +Category
+                   +Classified
+                   + FiscalYear~ variable ,sum, fill=NA_real_ )
 
-CasProcurement<-dcast(Procurement, ID
-                      +Account
-                      +Budget.Activity
-                      +Budget.Activity.Title
-                      +BSA
-                      +BSA.Title
-                      +Line.Item
-                      +Line.Item.Title
-                      +Cost.Type
-                      +Cost.Type.Title
-                      +Category
-                      +Classified
-                      +variable
-                      + FiscalYear~ Type , sum)
+
+
+
+write.csv(Procurement,paste("Data\\","Long_Procurement_Budget_Database_Export.csv",sep=""), row.names=FALSE)
+
 
 
 
@@ -108,5 +134,32 @@ RnD<-melt(RnD
 
 RnD$FiscalYear<-as.numeric(substring(as.character(RnD$variable),4,7))
 RnD$variable<-substring(as.character(RnD$variable),9,999)
-RnD$variable<-as.factor(RnD$variable)
+RnD$variable[RnD$variable==""]<-"Actual"
+RnD$variable<-ordered(RnD$variable,c("PB",
+                                                     "App",
+                                                     "Actual",
+                                                     "CR",
+                                                     "CR.OCO",
+                                                     "OCO.PB",
+                                                     "OCO.App",
+                                                     "OCO.Sup"
+                                  
+))
+
+RnD<-subset(RnD,!is.na(value))
+RnD<-dcast(RnD, ID+
+                         PE+
+                         PE.Title+
+                         Budget.Activity+
+                         Budget.Activity.Title+
+                         Account+
+                         Classified+ FiscalYear~ variable ,
+           sum, 
+           fill=NA_real_ )
+
+
+
+
+
+write.csv(RnD,paste("Data\\","Long_RnD_Budget_Database_Export.csv",sep=""), row.names=FALSE)
 
