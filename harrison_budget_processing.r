@@ -160,6 +160,7 @@ RnD<-dcast(RnD, ID+
 
 
 
+max(nchar(as.character(RnD$PE)))
+write.csv(RnD,paste("Data\\","Long_RnD_Budget_Database_Export.csv",sep=""), row.names=FALSE,na="")
 
-write.csv(RnD,paste("Data\\","Long_RnD_Budget_Database_Export.csv",sep=""), row.names=FALSE)
-
+str(RnD)
