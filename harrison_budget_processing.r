@@ -106,10 +106,10 @@ Procurement<-dcast(Procurement, ID
 
 
 
-write.csv(Procurement,paste("Data\\","Long_Procurement_Budget_Database_Export.csv",sep=""), row.names=FALSE)
+write.csv(Procurement,paste("Data\\","Long_Procurement_Budget_Database_Export.csv",sep=""), row.names=FALSE,na="")
 
 
-
+max(nchar(as.character(Procurement$Line.Item)))
 
 
 
