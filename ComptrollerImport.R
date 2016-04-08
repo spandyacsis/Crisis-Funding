@@ -1,527 +1,260 @@
-# SURVEY DATA VISUALIZATIONS FOR JOINT DEVELOPMENT PROJECT
-# MARCH 18 2016
-
-################################################################################
-#     INCLUDE PACKAGES USED
-################################################################################
+#*************************************Required Libraries******************************************
 library(xlsx)     # to read excel files
-library(data.table)     # for data management
-library(ggplot2)  # to produce graphics
-library(grid)   # to produce graphics
-library(dplyr)    # for data management
-library(plyr)     # for data management
-library(tidyr)    # for data management
-library(scales)   # for percent format in y-axis
-
+require(plyr)
+require(grid)
+require(reshape2)
+require(stringr)
+require(ggplot2)
+# require(logging)
+# debug(VariableNumericalFormat)
+#*************************************Options*****************************************************
 options(error=recover)
 options(warn=1)
+# basicConfig()
+# logdebug("not shown, basic is INFO")
+# logwarn("shown and timestamped")
 
-################################################################################
-#     OPEN FILES AND LOAD DATA
-################################################################################
+# system("defaults write org.R-project.R force.LANG en_US.UTF-8")
+# debug("CreateCSV")
 
-# save original working directory
-originalwd <- getwd()
+# debug(apply_lookups)
+# debug(CreateDuration)
+#*************************************Lookup Files*****************************************************
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"~\\FPDS\\R scripts and data\\"
+Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
-# OPEN FILES:
-# Reads excel sheets by name with read.xlsx2() [xlsx package]
-# and creates data tables [data.table package] with the data read.
-# Check file path names and spreadsheet names if this isn't working
-# setwd("K:/Development/JointDevelopment")
-setwd("C:/Users/Greg Sanders/Documents/Development/JointDevelopment")
+require(plyr)
+require(reshape2)
 
-JSF <- data.table(read.xlsx2("./Surveys/Response MatrixJSF.xlsx", 
-                             sheetName = "Sheet2"))
-M777 <- data.table(read.xlsx2("./Surveys/Response MatrixM777.xlsx", 
-                              sheetName = "Sheet2"))
-AGS <- data.table(read.xlsx2("./Surveys/Response MatrixAGS.xlsx", 
-                             sheetName = "Sheet2"))
+source(paste(Path,"helper.r",sep=""))
+source(paste(Path,"lookups.r",sep=""))
+source(paste(Path,"helper.r",sep=""))
+source(paste(Path,"statistics_aggregators.r",sep=""))
 
-# fixes numeric data that got imported as factors 
-# ignore the NA warning, NAs are being correctly recognized now, not introduced
-JSF$Score <- as.numeric(as.character(JSF$Score))
-JSF$Weight <- as.numeric(as.character(JSF$Weight))
-M777$Score <- as.numeric(as.character(M777$Score))
-M777$Weight <- as.numeric(as.character(M777$Weight))
-AGS$Score <- as.numeric(as.character(AGS$Score))
-AGS$Weight <- as.numeric(as.character(AGS$Weight))
+# setwd("K:\\Development\\Budget")
+setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+
+# debug(create_procedural_graphs
+Procurement <- data.table(read.xlsx2("./Data/p1.xlsx", 
+                            sheetName = "Exhibit P-1",
+                            startRow=2))
 
 
-# MERGE DATA:
-# tags each dataset with the program it comes from, then merges datasets 
-JSF <- mutate(JSF, Program = "JSF")
-M777 <- mutate(M777, Program = "M777")
-AGS <- mutate(AGS, Program = "AGS")
+Procurement<-standardize_variable_names(Path,Procurement)
 
-SurveyData <- rbind(JSF, M777, AGS, fill = TRUE)
 
-# CHANGE QUESTION TITLES AND LEVELS IN THESE DOCUMENTS
-# The '\n' is a line break character
-questions <- data.table(read.csv("./Surveys/Questions.csv"))
-SurveyLevels <- data.table(read.csv("./Surveys/SurveyLevels.csv"))
+colnames(Procurement)
+Procurement$FY.2015..Base...OCO..Quantity <- as.numeric(as.character(Procurement$FY.2015..Base...OCO..Quantity))
+Procurement$FY.2015..Base...OCO..Amount <- as.numeric(as.character(Procurement$FY.2015..Base...OCO..Amount))
+Procurement$FY.2016.Base.Enacted.Quantity <- as.numeric(as.character(Procurement$FY.2016.Base.Enacted.Quantity))
+Procurement$FY.2016.Base.Enacted.Amount <- as.numeric(as.character(Procurement$FY.2016.Base.Enacted.Amount))
+Procurement$FY.2016.OCO.Enacted.Quantity <- as.numeric(as.character(Procurement$FY.2016.OCO.Enacted.Quantity))
+Procurement$FY.2016.OCO.Enacted.Amount <- as.numeric(as.character(Procurement$FY.2016.OCO.Enacted.Amount))
+Procurement$FY.2016.Total.Enacted.Quantity <- as.numeric(as.character(Procurement$FY.2016.Total.Enacted.Quantity))
+Procurement$FY.2016.Total.Enacted.Amount <- as.numeric(as.character(Procurement$FY.2016.Total.Enacted.Amount))
+Procurement$FY.2017.Base.Quantity <- as.numeric(as.character(Procurement$FY.2017.Base.Quantity))
+Procurement$FY.2017.Base.Amount <- as.numeric(as.character(Procurement$FY.2017.Base.Amount))
+Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.OCO.Quantity))
+Procurement$FY.2017.OCO.Amount <- as.numeric(as.character(Procurement$FY.2017.OCO.Amount))
+Procurement$FY.2017.Total.Quantity <- as.numeric(as.character(Procurement$FY.2017.Total.Quantity))
+Procurement$FY.2017.Total.Amount <- as.numeric(as.character(Procurement$FY.2017.Total.Amount))
+Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.OCO.Quantity))
 
-SurveyLevels$Level <- gsub("\\\\n","\n",SurveyLevels$Level)
-questions$SubTitle <- gsub("\\\\n","\n",questions$SubTitle)
 
-################################################################################
-#     PREPARE TO CREATE GRAPHS
-################################################################################
 
-SurveySummary<-ddply(SurveyData, 
-                     .(Characteristic,Score,Program),
-                     .fun=summarise,
-                     Weight=sum(Weight)
-)
-
-ZeroSurveySummary<-expand.grid(Characteristic=unique(SurveySummary$Characteristic),
-                               Program=unique(SurveySummary$Program),
-                               Score=1:6)
-ZeroSurveySummary$Weight<-0 
-
-SurveySummary<-ddply(rbind(SurveySummary,ZeroSurveySummary), 
-                     .(Characteristic,Score,Program),
-                     .fun=summarise,
-                     Weight=sum(Weight,na.rm=TRUE) #JSF has some missing responses
-)
-
-SurveySummary<-ddply(SurveySummary, 
-                     .(Characteristic,Program),
-                     .fun=mutate,
-                     Percent=Weight/sum(Weight,na.rm=TRUE) #JSF has some missing responses
+Procurement<-melt(Procurement,
+                  id.vars=c("Account"
+                         ,"Account.Title"
+                         ,"Organization"
+                         ,"Budget.Activity"
+                         ,"Budget.Activity.Title"
+                         ,"Line.Number"
+                         ,"BSA"
+                         ,"BSA.Title"
+                         ,"Line.Item"
+                         ,"Line.Item.Title"
+                         ,"Cost.Type"
+                         ,"Cost.Type.Title"
+                         ,"Add..Non.Add"
+                         ,"Classified"
+                         )
 )
 
 
+Procurement$FiscalYear<-as.numeric(substring(as.character(Procurement$variable),4,7))
+Procurement$variable<-substring(as.character(Procurement$variable),9,999)
 
-SurveySummary$CharacteristicNumber<-substring(SurveySummary$Characteristic,1,1)
-SurveySummary$CharacteristicLetter<-substring(SurveySummary$Characteristic,2,2)
-SurveySummary$CharacteristicLetter[SurveySummary$CharacteristicLetter==""]<-NA
+unique(Procurement$variable)
 
 
-SurveyAverage<-ddply(SurveySummary, 
-                     .(Characteristic,Program,CharacteristicNumber,CharacteristicLetter),
-                     .fun=summarise,
-                     Average=sum(Weight*Score,na.rm=TRUE)/sum(Weight,na.rm=TRUE)
+ 
+#I'm probably going to switch this to a CSV
+Procurement$variable[Procurement$variable==".Base...OCO..Quantity"]<-"Quant.Actual" #"(Base & OCO)
+Procurement$variable[Procurement$variable==".Base...OCO..Amount"]<-"Actual" #"(Base & OCO)
+
+Procurement$variable[Procurement$variable=="Base.Enacted.Quantity"]<-"Quant.Base.App"
+Procurement$variable[Procurement$variable=="Base.Enacted.Amount"]<-"Base.App"
+
+Procurement$variable[Procurement$variable=="OCO.Enacted.Quantity"]<-"Quant.OCO.App"
+Procurement$variable[Procurement$variable=="OCO.Enacted.Amount"]<-"OCO.App"
+    
+Procurement$variable[Procurement$variable=="Total.Enacted.Quantity"]<-"Quant.App"
+Procurement$variable[Procurement$variable=="Total.Enacted.Amount"]<-"App"
+
+Procurement$variable[Procurement$variable=="Base.Quantity"]<-"Quant.Base.PB"
+Procurement$variable[Procurement$variable=="Base.Amount"]<-"Base.PB"
+
+Procurement$variable[Procurement$variable=="OCO.Quantity"]<-"Quant.OCO.PB"
+Procurement$variable[Procurement$variable=="OCO.Amount"]<-"OCO.PB"
+    
+Procurement$variable[Procurement$variable=="Total.Quantity"]<-"Quant.PB"
+Procurement$variable[Procurement$variable=="Total.Amount"]<-"PB"
+
+Procurement$variable[Procurement$variable==""]<-"Actual"
+Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
+Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
+Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
+
+    
+Procurement$variable<-ordered(Procurement$variable,c("PB",
+                                                     "App",
+                                                     "Actual",
+                                                     "CR",
+                                                     "CR.OCO",
+                                                     "OCO.PB",
+                                                     "Base.PB",
+                                                     "OCO.App",
+                                                     "Base.App",
+                                                     "OCO.Sup",
+                                                     "Quant.PB",
+                                                     "Quant.App",
+                                                     "Quant.Actual",
+                                                     "Quant.CR",
+                                                     "Quant.CR.OCO",
+                                                     "Quant.OCO.PB",
+                                                     "Quant.Base.PB",
+                                                     "Quant.OCO.App",
+                                                     "Quant.Base.App",
+                                                     "Quant.OCO.Sup"
+))
+summary(Procurement$variable)
+Procurement<-subset(Procurement,!is.na(value))
+# unique(Procurement$variable)
+# Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
+# Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
+# Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]<-
+# substring(as.character(Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]),7,999)
+
+str(Procurement)
+
+
+
+ProcurementAllColumns<-dcast(Procurement, 
+                   Account
+                   +Budget.Activity
+                   +Budget.Activity.Title
+                   +BSA
+                   +BSA.Title
+                   +Line.Item
+                   +Line.Item.Title
+                   +Cost.Type
+                   +Cost.Type.Title
+                   +Classified
+                   + FiscalYear~ variable ,sum, fill=NA_real_ )
+
+
+
+write.csv(ProcurementAllColumns,paste("Data\\","P12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
+str(ProcurementAllColumns)
+
+
+RnD <- data.table(read.xlsx2("./Data/r1_display.xlsx", 
+                            sheetName = "Exhibit R-1",
+                            startRow=2))
+
+
+
+
+RnD<-standardize_variable_names(Path,RnD)
+colnames(RnD)
+
+
+RnD$FY.2015..Base...OCO. <- as.numeric(as.character(RnD$FY.2015..Base...OCO.))
+RnD$FY.2016.Base.Enacted <- as.numeric(as.character(RnD$FY.2016.Base.Enacted))
+RnD$FY.2016.OCO.Enacted <- as.numeric(as.character(RnD$FY.2016.OCO.Enacted))
+RnD$FY.2016.Total.Enacted <- as.numeric(as.character(RnD$FY.2016.Total.Enacted))
+RnD$FY.2017.Base <- as.numeric(as.character(RnD$FY.2017.Base))
+RnD$FY.2017.OCO <- as.numeric(as.character(RnD$FY.2017.OCO))
+RnD$FY.2017.Total <- as.numeric(as.character(RnD$FY.2017.Total))
+
+
+RnD<-melt(RnD
+          , id.vars =c("Account"
+                 ,"Account.Title"
+                 ,"Organization"
+                 ,"Budget.Activity"
+                 ,"Budget.Activity.Title"
+                 ,"Line.Number"
+                 ,"PE"
+                 ,"PE.Title"
+                 ,"Include.in.TOA"
+                 ,"Classified"
+                 )
+          # ,value.name="DollarsThousands"
 )
 
 
-SurveyLevels$CharacteristicNumber<-substring(SurveyLevels$Characteristic,1,1)
-SurveyLevels$CharacteristicLetter<-substring(SurveyLevels$Characteristic,2,2)
-SurveyLevels$CharacteristicLetter[SurveyLevels$CharacteristicLetter==""]<-NA
+RnD$FiscalYear<-as.numeric(substring(as.character(RnD$variable),4,7))
+RnD$variable<-substring(as.character(RnD$variable),9,999)
+
+RnD$variable[RnD$variable==".Base...OCO."]<-"Actual" #"(Base & OCO)
+RnD$variable[RnD$variable=="Base.Enacted"]<-"Base.App"
+RnD$variable[RnD$variable=="OCO.Enacted"]<-"OCO.App"
+RnD$variable[RnD$variable=="Total.Enacted"]<-"Quant.App"
+RnD$variable[RnD$variable=="Base"]<-"Base.PB"
+RnD$variable[RnD$variable=="OCO"]<-"OCO.PB"
+RnD$variable[RnD$variable=="Total"]<-"PB"
 
 
-
-SurveySummary<-join(SurveySummary,questions,by="Characteristic")
-
-SurveySummary[order(SurveySummary$Program,SurveySummary$Characteristic,SurveySummary$Score),]
-SurveyLevels[order(SurveyLevels$Characteristic,SurveyLevels$Score),]
-
-# questions <- dist(SurveySummary$Characteristic)
-questionsNumber <- unique(SurveySummary$CharacteristicNumber)
-
-
-
-
-# CHANGE QUESTION TITLES HERE
-# The '\n' is a line break character
-# SurveySummary$SubTitle<-NA
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="1a"]<-"Between Government\nand Industry"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="1b"]<-"Between Participating\nGovernments"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="1c"]<- "Between Participating\nIndustries"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="3a"]<-  "Impact of\nOperational Needs"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="3b"]<-  "Impact of\nPolitical Needs"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="7a"]<-  "Technology Motivation"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="7b"]<-  "Cost Motivation"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="8a"]<-  "By Comparative\nAdvantage"
-# SurveySummary$SubTitle[SurveySummary$Characteristic=="8b"]<-  "By Political or\nIndustrial Goals"
+RnD$variable<-ordered(RnD$variable,c("PB",
+                                     "App",
+                                     "Actual",
+                                     "CR",
+                                     "CR.OCO",
+                                     "OCO.PB",
+                                     "OCO.App",
+                                     "OCO.Sup"
+                                     
+))
 
 
-questionTitle <- c("Figure 1.  Integration",
-                   "Figure 2. Number of\nParticipating Countries",
-                   "Figure 3. Decision Making",
-                   "Figure 4. Commitment",
-                   "Figure 5. Flexibility",
-                   "Figure 6. Alignment of\nOperational Needs",
-                   "Figure 7. Tradeoff Between\nLeading-Edge Technology and Cost",
-                   "Figure 8. Workshare Distribution"
-                   
-)
+colnames(RnD)
+RnD<-subset(RnD,!is.na(value))
+str(RnD)
 
 
-# Find the maximum total weight for any one combination of score, program, and
-# question;
-
-# This will be used to set the scale of the Y axis on graphs, ensuring that
-# A) Graphs have a consistent scale, and 
-# B) All data fits on the graphs
-
-weightsum <- with(SurveySummary, aggregate(Weight ~ Program + Score +
-                                               Characteristic, FUN = sum))
-maxheight <- max(weightsum$Weight)
-
-################################################################################
-#     BUILD AND SAVE GRAPHS
-################################################################################
-# 
-# for(i in seq_along(questions)){
-# 
-#       oneQdata <- filter(SurveySummary, Characteristic == questions[i])
-#       ggplot(oneQdata, aes(x=Score, y = Weight, fill = Program)) +
-#             geom_bar(stat = "identity") +
-#             labs(y= "Frequency", x= "Score") +
-#             facet_grid(Program ~ .) +
-#             scale_x_continuous(limits = c(0.5,6.5), breaks =c(1,2,3,4,5,6)) +
-#             scale_y_continuous(limits = c(0,maxheight), 
-#                                breaks = seq(0, floor(maxheight), 1)) +
-#             scale_fill_brewer(palette = "Spectral") +
-#             ggtitle(bquote(atop(.(questionTitle[i]),
-#                                 atop(italic(.(questionSubTitle[i])), "")))) +
-#             theme(plot.title=element_text(size = rel(1), face = "bold")) +
-#             theme(strip.text = element_blank(), 
-#                   strip.background = element_blank(),
-#                   legend.position="right")
-# 
-# # CHANGE SAVE LOCATION HERE
-#       filepath <- paste("./FinalGraphs/",
-#                         "q",questions[i],".png",sep = "")
-# 
-# # CHANGE GRAPH SIZE AND RESOLUTION HERE            
-#       ggsave(filepath, width = 3, height = 3, unit="in", dpi = 300)      
-# }
+RnDallColumns<-dcast(RnD,  Account+
+               Account.Title+
+               Organization+
+               Budget.Activity+
+               Budget.Activity.Title+
+               Line.Number+
+               PE+
+               PE.Title+
+               Include.in.TOA+
+               Classified+ 
+               FiscalYear ~ variable ,
+           sum, 
+           fill=NA_real_ )
 
 
-
-for(i in seq_along(questionsNumber)){
-    
-    oneQdata <- filter(SurveySummary, CharacteristicNumber == questionsNumber[i])
-    oneQlabels <- filter(SurveyLevels, CharacteristicNumber == questionsNumber[i])
-    oneQaverage <- filter(SurveyAverage, CharacteristicNumber == questionsNumber[i])
-    
-    if(any(is.na(oneQdata$CharacteristicLetter))){
-        ggplot(oneQdata, aes(x=Score, y= Percent,  fill=Program, color=Program)) + # y = Weight,
-            geom_area(alpha=0.5, position = "identity") +#stat = "identity"
-            labs(y= "Percent of Responses") + #, x= "Score"
-            #facet_grid(Program ~ .) +
-            scale_x_continuous( breaks=c(1:nrow(oneQlabels)),
-                                limits = c(0.5,6.5),
-                                labels=paste(oneQlabels$Score,oneQlabels$Level,sep="-"))+
-            scale_y_continuous( labels = percent_format())+
-            #             scale_y_continuous(limits = c(0,maxheight), 
-            #                                breaks = seq(0, floor(maxheight), 1)) +
-            scale_fill_brewer(palette = "Accent") +
-            scale_color_brewer(palette = "Accent") +
-            ggtitle(questionTitle[i]) +
-            geom_vline(data=oneQaverage, aes(xintercept=Average))
-            theme(plot.title=element_text(size = rel(1), face = "bold")) +
-            theme(axis.text.x=element_text(angle=45,
-                                           size=7,
-                                           vjust = 1, 
-                                           hjust=1),
-                  axis.text.y=element_text(size=7),
-                  axis.title.x=element_text(size=8),
-                  axis.title.y=element_text(size=8))+ #size=axis.text.
-            theme(strip.text = element_blank(), 
-                  strip.background = element_blank(),
-                  axis.title.x=element_blank(),
-                  legend.text=element_text(size=8),
-                  plot.margin=unit(c(0,0.25,-0.25,0.5),"cm"),
-                  legend.margin=unit(-0.5,"cm"),
-                  legend.key.size=unit(0.25,"cm"),
-                  legend.position="right")
-    }
-    else{
-        #This is a trick to allow each of the multiple part questions to have a different score
-        #1-6 for a, 7-12 for b, and 13-18 for c
-        oneQdata$Score[oneQdata$CharacteristicLetter=="b"]<-oneQdata$Score[oneQdata$CharacteristicLetter=="b"]+6
-        oneQdata$Score[oneQdata$CharacteristicLetter=="c"]<-oneQdata$Score[oneQdata$CharacteristicLetter=="c"]+12
-        ggplot(oneQdata, aes(x=Score, y = Percent, fill = Program, color=Program)) +
-            geom_area(alpha=0.5, position = "identity") +
-            labs(y= "Percent of Responses") + #, x= "Score"
-            scale_x_continuous(breaks=c(1:nrow(oneQlabels)),
-                               labels=paste(oneQlabels$Score,oneQlabels$Level,sep="-"))+#limits = c(0.5,6.5), breaks =c(1,2,3,4,5,6)) +
-            facet_grid(. ~ SubTitle, scales="free_x") +
-            scale_y_continuous( labels = percent_format())+
-            # scale_y_continuous(limits = c(0,maxheight), 
-            # breaks = seq(0, floor(maxheight), 1)) +
-            scale_fill_brewer(palette = "Accent") +
-            scale_color_brewer(palette = "Accent") +
-            ggtitle(questionTitle[i]) +
-            theme(plot.title=element_text(size = rel(1), face = "bold")) +
-            theme(axis.text.x=element_text(angle=45,
-                                           size=7,
-                                           vjust = 1, 
-                                           hjust=1),
-                  axis.text.y=element_text(size=7),
-                  axis.title.x=element_text(size=8),
-                  axis.title.y=element_text(size=8))+ #size=axis.text.
-            
-            theme(strip.text = element_text(size=7), 
-                #strip.background = element_blank(),
-                axis.title.x=element_blank(),
-                legend.text=element_text(size=8),
-                plot.margin=unit(c(0,0.5,-0.25,0),"cm"),
-                # panel.margin=unit(0.5,"cm"),
-                legend.margin=unit(-0.2,"cm"),
-                legend.key.size=unit(0.25,"cm"),
-                legend.position="right")
-    }
-    # CHANGE SAVE LOCATION HERE
-    filepath <- paste("./FinalGraphs/",
-                      "q",questionsNumber[i],".png",sep = "")
-    
-    graphwidth<-2+1.5*length(unique(oneQdata$CharacteristicLetter))
-    # CHANGE GRAPH SIZE AND RESOLUTION HERE            
-    ggsave(filepath, width = graphwidth, height = 2.25, unit="in", dpi = 300)      
-}
-
-
-
-SurveyData$CharacteristicNumber<-substring(SurveyData$Characteristic,1,1)
-SurveyData$CharacteristicLetter<-substring(SurveyData$Characteristic,2,2)
-SurveyData$CharacteristicLetter[SurveyData$CharacteristicLetter==""]<-NA
-
-# SurveyData<-ddply(SurveyData, 
-#                      .(Characteristic,Program),
-#                      .fun=mutate,
-#                      Percent=Weight/sum(Weight,na.rm=TRUE) #JSF has some missing responses
-# )
-
-SurveySumcheck<-ddply(SurveyData, 
-                      .(Characteristic,Program,Stakeholder),
-                      .fun=summarise,
-                      Weight=sum(Weight,na.rm = TRUE)
-)
-subset(SurveySumcheck,is.na(Weight)|abs(Weight-1)>0.02)
-
-
-
-for(i in c(3,7,8)){
-    
-    oneQdataA <- filter(SurveyData, CharacteristicNumber == i  &CharacteristicLetter=='a')
-    oneQdataB <- filter(SurveyData, CharacteristicNumber == i  &CharacteristicLetter=='b')
-    oneQdataA <- subset(oneQdataA , select=-c(Characteristic,CharacteristicLetter))
-    oneQdataB <- subset(oneQdataB , select=-c(Characteristic,CharacteristicLetter))
-    oneQdataA<-rename(oneQdataA, c("Score"="ScoreA"))
-    oneQdataB<-rename(oneQdataB, c("Score"="ScoreB"))
-    if(nrow(oneQdataA)!=nrow(oneQdataB)) stop("Number of entries is not aligned between surveys")
-    oneQdata<-full_join(oneQdataA,oneQdataB)
-    oneQdata<-oneQdata[complete.cases(oneQdata),]
-    
-    oneQdata<-ddply(oneQdata, 
-                    .(CharacteristicNumber,ScoreA,ScoreB,Program),
-                    .fun=summarise,
-                    Weight=sum(Weight)
-    )
-    
-    
-    oneQdata<-ddply(oneQdata, 
-                    .(CharacteristicNumber,Program),
-                    .fun=mutate,
-                    Percent=Weight/sum(Weight,na.rm=TRUE) #JSF has some missing responses
-    )
-    
-    oneQlabelsA <- filter(SurveyLevels, CharacteristicNumber == i &CharacteristicLetter=='a')
-    oneQlabelsB <- filter(SurveyLevels, CharacteristicNumber == i &CharacteristicLetter=='b')
-    
-    
-    
-    ggplot(oneQdata, aes(x=ScoreA, y = ScoreB, size = Percent, color=Program)) +
-        geom_point() +
-        scale_size_area(labels = percent_format())+
-        labs(x= gsub("\n"," ",filter(questions, substring(questions$Characteristic,1,1) == i  &
-                           substring(questions$Characteristic,2,2)=='a')$SubTitle),
-             y= gsub("\n"," ",filter(questions, substring(questions$Characteristic,1,1)== i  &
-                            substring(questions$Characteristic,2,2)=='b')$SubTitle)) +
-    scale_x_continuous(breaks=c(1:nrow(oneQlabelsA)),
-                       limits = c(0.5,6.5),
-                       labels=paste(oneQlabelsA$Score,oneQlabelsA$Level,sep="-"))+#limits = c(0.5,6.5), breaks =c(1,2,3,4,5,6)) +
-        facet_grid(. ~ Program) +
-        scale_y_continuous(breaks=c(1:nrow(oneQlabelsB)),
-                           limits = c(0.5,6.5),
-                           labels=paste(oneQlabelsB$Score,oneQlabelsB$Level,sep="-"))+#limits = c(0.5,6.5), breaks =c(1,2,3,4,5,6)) +
-        # scale_y_continuous(limits = c(0,maxheight), 
-        # breaks = seq(0, floor(maxheight), 1)) +
-        scale_fill_brewer(palette = "Accent") +
-        scale_color_brewer(palette = "Accent") +
-        ggtitle(questionTitle[i]) +
-        theme(plot.title=element_text(size = rel(1), face = "bold")) +
-        theme(axis.text.x=element_text(angle=45,
-                                       size=7,
-                                       vjust = 1, 
-                                       hjust=1))+ #size=axis.text.
-        theme(axis.text.y=element_text(angle=45,
-                                       size=7,
-                                       vjust = 1, 
-                                       hjust=1))+ #size=axis.text.
-        guides(color=FALSE)+
-        geom_abline(slope=1)+
-        annotate("text", x = 1, y = 6, label = "Relies on X",size=2,hjust=0)+
-    annotate("text", x = 6, y = 1, label = "Relies on Y",size=2,hjust=1)+
-        # geom_abline()
-        theme(axis.title.x=element_text(size=8),
-              axis.title.y=element_text(size=8)
-              # plot.title=element_text(hjust=0)
-              )+
-        theme(#strip.text = element_blank(), 
-            #strip.background = element_blank(),
-            # axis.title.x=element_blank(),
-            # axis.title.y=element_blank(),
-            legend.text=element_text(size=8),
-            legend.margin=unit(-0.5,"cm"),
-            plot.margin=unit(c(0,0,0,0),"cm"),
-            legend.key.size=unit(0.1,"cm"),
-            legend.position="right")
-    
-    # CHANGE SAVE LOCATION HERE
-    filepath <- paste("./FinalGraphs/",
-                      "q",i,"scatter.png",sep = "")
-    
-    graphwidth<-6.5
-    # CHANGE GRAPH SIZE AND RESOLUTION HERE            
-    ggsave(filepath, width = graphwidth, height = 3, unit="in", dpi = 300)      
-}
-
-
-# cleanup: return to original working directory
-setwd(originalwd)
+RnDconsolidated<-RnD
 
 
 
 
-
-################################################################################
-# END OF WORKING FILE:
-# 
-# AFTER THIS POINT EVERYTHING IS SAVED CODE FROM STUFF WE DIDN'T END UP USING
-# 
-# AND HAS ALL BEEN COMMENTED OUT
-################################################################################
+write.csv(RnDallColumns,paste("Data\\","R12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
+str(RnDallColumns)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ################################################################################
-# #     AVERAGE ACROSS SCORES BY WEIGHT
-# ################################################################################
-# 
-# avgJSF <- ddply(JSF, .variables = c("Characteristic","Stakeholder"),
-#                 .fun = summarize, Score = mean(Score))
-# avgAGS <- ddply(AGS, .variables = c("Characteristic","Stakeholder"),
-#                 .fun = summarize, Score = mean(Score))
-# avgLW155 <- ddply(LW155, .variables = c("Characteristic","Stakeholder"),
-#                   .fun = summarize, Score = mean(Score))
-# 
-# 
-# ################################################################################
-# #     CREATE DOT PLOTS FOR JSF
-# ################################################################################
-# 
-# ggplot(avgJSF, aes(x = Score, fill = Stakeholder)) + 
-#       geom_dotplot(stackdir = "centerwhole", stackgroups = TRUE, 
-#                    method = "histodot", binwidth = 0.14) +
-#       facet_grid(Characteristic ~ .) +
-#       scale_y_continuous(breaks =NULL) +
-#       theme(axis.title.y=element_blank()) +
-#       theme(axis.title.x=element_blank()) +
-#       scale_x_continuous(breaks =c(1,2,3,4,5,6)) +
-#       ##       scale_fill_brewer(palette = "RdYlBu") +
-#       ggtitle("JSF Survey responses by question")
-# 
-# 
-# ################################################################################
-# #     STACKED BARS BY QUESTION
-# ################################################################################
-#  
-# # create two charts to have a more managable amount of data displayed in each
-# setkey(SurveySummary, Characteristic)
-# firsthalf <- SurveySummary[c("1a","1b","1c","2","3a","3b","4")]
-# secondhalf <- SurveySummary[c("5","6","7a","7b","8a","8b")]
-# 
-# # first half
-# ggplot(firsthalf, aes(x=Score, y = Weight, fill = Program)) +
-#       geom_bar(stat = "identity") +
-#       facet_grid(Program ~ Characteristic) +
-#       theme(axis.title.y=element_blank()) +
-#       theme(axis.title.x=element_blank()) +
-#       scale_x_continuous(breaks =c(1,2,3,4,5,6)) +
-#       ggtitle("Ratings by question and program") +
-#       guides(fill = FALSE)
-# 
-# # second half
-# ggplot(secondhalf, aes(x=Score, y = Weight, fill = Program)) +
-#       geom_bar(stat = "identity") +
-#       facet_grid(Program ~ Characteristic) +
-#       theme(axis.title.y=element_blank()) +
-#       theme(axis.title.x=element_blank()) +
-#       scale_x_continuous(breaks =c(1,2,3,4,5,6)) +
-#       ggtitle("Ratings by question and program") +
-#       guides(fill = FALSE)
-# 
-# ################################################################################
-# #     OFFSET BARS BY PROGRAM
-# ################################################################################
-# 
-# 
-# ## NEEDS : CHECK Y SCALING
-# 
-# 
-# 
-# # Expand firsthalf dataframe to include all combinations of:
-# # [Characteristic x Program x Score]
-# # This is a kludge to get ggplot to display zero-height bars when no
-# # respondants gave a certain score to a certain program.
-# # Without the kludge, ggplot just surrenders that space to the programs
-# # that do have data in that range, which makes their bars too fat.
-# firsthalfall <- expand(firsthalf, Characteristic, Program,
-#                         Score, Stakeholder)
-# firsthalfplus <- left_join(firsthalfall, firsthalf)
-# firsthalfplus$Weight[is.na(firsthalfplus$Weight)] <- 0
-# 
-# # first half
-# ggplot(firsthalfplus, aes(x = Score, y = Weight, fill = Program)) +
-#       geom_bar(stat = "identity", position = "dodge",) +
-#       facet_grid(Characteristic ~ ., scale = "free_x", space="free") +
-#       scale_y_continuous(breaks =NULL) +
-#       theme(axis.title.y=element_blank()) +
-#       theme(axis.title.x=element_blank()) +
-#       scale_x_continuous(breaks =c(1,2,3,4,5,6)) +
-#       scale_fill_brewer(palette = "Set2") +
-#       ggtitle("Ratings by question and program")
-# 
-# # second half
-# secondhalfall <- expand(secondhalf, Characteristic, Program,
-#                        Score, Stakeholder)
-# secondhalfplus <- left_join(secondhalfall, secondhalf)
-# secondhalfplus$Weight[is.na(secondhalfplus$Weight)] <- 0
-# 
-# ggplot(secondhalfplus, aes(x = Score, y = Weight, fill = Program)) +
-#       geom_bar(stat = "identity", position = "dodge",) +
-#       facet_grid(Characteristic ~ ., scale = "free_x", space="free") +
-#       scale_y_continuous(breaks =NULL) +
-#       theme(axis.title.y=element_blank()) +
-#       theme(axis.title.x=element_blank()) +
-#       scale_x_continuous(breaks =c(1,2,3,4,5,6)) +
-#       scale_fill_brewer(palette = "Set2") +
-#       ggtitle("Ratings by question and program")
