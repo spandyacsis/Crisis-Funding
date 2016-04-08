@@ -208,13 +208,20 @@ RnD<-melt(RnD
 RnD$FiscalYear<-as.numeric(substring(as.character(RnD$variable),4,7))
 RnD$variable<-substring(as.character(RnD$variable),9,999)
 
-RnD$variable[RnD$variable==".Base...OCO."]<-"Actual" #"(Base & OCO)
-RnD$variable[RnD$variable=="Base.Enacted"]<-"Base.App"
-RnD$variable[RnD$variable=="OCO.Enacted"]<-"OCO.App"
-RnD$variable[RnD$variable=="Total.Enacted"]<-"Quant.App"
-RnD$variable[RnD$variable=="Base"]<-"Base.PB"
-RnD$variable[RnD$variable=="OCO"]<-"OCO.PB"
-RnD$variable[RnD$variable=="Total"]<-"PB"
+RnD<-read_and_join(
+    ""
+    ,"RenameComptrollerColumns.csv"
+    ,RnD
+)
+
+
+# RnD$variable[RnD$variable==".Base...OCO."]<-"Actual" #"(Base & OCO)
+# RnD$variable[RnD$variable=="Base.Enacted"]<-"Base.App"
+# RnD$variable[RnD$variable=="OCO.Enacted"]<-"OCO.App"
+# RnD$variable[RnD$variable=="Total.Enacted"]<-"Quant.App"
+# RnD$variable[RnD$variable=="Base"]<-"Base.PB"
+# RnD$variable[RnD$variable=="OCO"]<-"OCO.PB"
+# RnD$variable[RnD$variable=="Total"]<-"PB"
 
 
 RnD$variable<-ordered(RnD$variable,c("PB",
