@@ -19,10 +19,10 @@ options(warn=1)
 
 # debug(apply_lookups)
 # debug(CreateDuration)
-#*************************************Lookup Files*****************************************************
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# *************************************Lookup Files*****************************************************
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
-Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
 require(reshape2)
@@ -30,10 +30,10 @@ require(reshape2)
 source(paste(Path,"helper.r",sep=""))
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
-source(paste(Path,"statistics_aggregators.r",sep=""))
 
-# setwd("K:\\Development\\Budget")
-setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+
+setwd("K:\\Development\\Budget")
+# setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
 Procurement <- data.table(read.xlsx2("./Data/p1.xlsx", 
