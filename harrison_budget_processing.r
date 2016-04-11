@@ -19,9 +19,9 @@ options(warn=1)
 # debug(apply_lookups)
 # debug(CreateDuration)
 #*************************************Lookup Files*****************************************************
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
-# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
 require(reshape2)
@@ -31,8 +31,8 @@ source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
 
-setwd("K:\\Development\\Budget")
-# setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+# setwd("K:\\Development\\Budget")
+setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
 Procurement<-read.csv(
@@ -40,6 +40,9 @@ Procurement<-read.csv(
     header=TRUE, sep=",", na.strings="", dec=".", strip.white=TRUE, 
     stringsAsFactors=TRUE
 )
+
+Procurement<-standardize_variable_names(Path,Procurement)
+
 colnames(Procurement)
 Procurement<-reshape2::melt(Procurement
       , id=c("ID"
@@ -117,6 +120,10 @@ RnD<-read.csv(
     header=TRUE, sep=",", na.strings="", dec=".", strip.white=TRUE, 
     stringsAsFactors=TRUE
 )
+
+RnD<-standardize_variable_names(Path,RnD)
+
+
 colnames(RnD)
 RnD<-melt(RnD
                   , id=c("ID"
