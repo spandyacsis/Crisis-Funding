@@ -44,6 +44,7 @@ for(i in seq_along(pagelist)) {
       # read the contents of the webpage into a character variable      
       url <- as.character(pagelist[i])
       html = try(GET(url))
+      pdfurl <- vector("character", length = 0)
       
       # If it didn't read correctly, skip this iteration and add to an error
       # counter.  The user will be asked to run the script again if there were
@@ -62,11 +63,19 @@ for(i in seq_along(pagelist)) {
       # "from" : which agency produced the PDF
       # "pagename": which page was the PDF found on
       if(grepl("comptroller.defense.gov", url)){
-            pdfurl <- paste("http://comptroller.defense.gov", pdfs, sep="")
+            for(k in seq_along(pdfs)){
+                  if(!grepl("www.whitehouse.gov", pdfs[k]) &
+                     !grepl("comptroller.defense.gov", pdfs[k])){
+                        pdfurl[k] <- paste("http://comptroller.defense.gov",
+                                        pdfs[k], sep="")
+                  }
+                  else{pdfurl[k] <- paste("http:", pdfs[k])}
+            }
             from <- "Comptroller"
             pagename <- unlist(strsplit(
                   url,"http://comptroller.defense.gov/BudgetMaterials/"))[2]
             pagename <- unlist(strsplit(pagename, "\\.aspx"))[1]
+            if(is.na(pagename)) {pagename <- "MiscOther"}
       }
       
       else if(grepl("saffm.hq.af.mil", url)){
@@ -164,7 +173,7 @@ URLsToSave <- append(URLsToSave, pdfurl)
 
 
 ### Create file structure for Army
-subdirs <- unique(pagename)
+subdirs <- unique(pagename2)
 dir.create(from, showWarnings = FALSE)
 for(j in seq_along(subdirs)){
       dir.create(file.path(from, subdirs[j]), showWarnings = FALSE)
@@ -188,12 +197,14 @@ for(j in seq_along(subdirs)){
 errorcount <- 0L
 
 for(i in seq_along(URLsToSave)){
-      if(!file.exists(PathsToSave[i]) | file.size(PathsToSave[i]) < 500){
-            tryCatch({download.file(URLsToSave[i], PathsToSave[i],
+      if(!file.exists(PathsToSave[i]) | file.size(PathsToSave[i]) < 3400){
+            if(url.exists(URLsToSave[i])){
+                  tryCatch({download.file(URLsToSave[i], PathsToSave[i],
                      method = "libcurl", mode="wb")
                      cat(paste("Downloaded Successfully", i, URLsToSave[i],
                                sep = "\n"))},
-                     error = function(){errorcount <- errorcount + 1})
+                     error = function(e){errorcount <- errorcount + 1; e})
+            }
       }
 }
 
