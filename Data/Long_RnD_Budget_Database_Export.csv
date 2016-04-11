@@ -1,4 +1,4 @@
-"ID","PE","PE.Title","Budget.Activity","Budget.Activity.Title","Account","Classified","FiscalYear","PB","App","Actual","CR","CR.OCO","OCO.PB","OCO.App","OCO.Sup"
+"ID","ProgramElement","ProgramElementTitle","BudgetActivity","BudgetActivityTitle","Account","Classified","FiscalYear","PB","App","Actual","CR","CR.OCO","OCO.PB","OCO.App","OCO.Sup"
 4050,"0207131F","A-10 Squadrons",5,,3600,,1999,,,0,,,,,
 4051,"0207131F","A-10 Squadrons",7,"Operational Systems Development",3600,,1999,,,2170,,,,,
 4052,"0604261N","Acoustic Search Sensors",5,"System Development & Demonstration",1319,,1999,,,27905,,,,,
