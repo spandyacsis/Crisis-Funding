@@ -36,9 +36,9 @@ setwd("K:\\Development\\Budget")
 # setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
-Procurement <- data.table(read.xlsx2("./Data/p1.xlsx", 
+Procurement <- read.xlsx2("./Data/p1.xlsx", 
                             sheetName = "Exhibit P-1",
-                            startRow=2))
+                            startRow=2)
 
 
 Procurement<-standardize_variable_names(Path,Procurement)
@@ -65,18 +65,18 @@ Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.
 
 Procurement<-melt(Procurement,
                   id.vars=c("Account"
-                         ,"Account.Title"
+                         ,"AccountTitle"
                          ,"Organization"
-                         ,"Budget.Activity"
-                         ,"Budget.Activity.Title"
-                         ,"Line.Number"
+                         ,"BudgetActivity"
+                         ,"BudgetActivityTitle"
+                         ,"LineNumber"
                          ,"BSA"
-                         ,"BSA.Title"
-                         ,"Line.Item"
-                         ,"Line.Item.Title"
-                         ,"Cost.Type"
-                         ,"Cost.Type.Title"
-                         ,"Add..Non.Add"
+                         ,"BSAtitle"
+                         ,"LineItem"
+                         ,"LineItemTitle"
+                         ,"CostType"
+                         ,"CostTypeTitle"
+                         ,"AddOrNonAdd"
                          ,"Classified"
                          )
 )
@@ -90,53 +90,61 @@ unique(Procurement$variable)
 
  
 #I'm probably going to switch this to a CSV
-Procurement$variable[Procurement$variable==".Base...OCO..Quantity"]<-"Quant.Actual" #"(Base & OCO)
-Procurement$variable[Procurement$variable==".Base...OCO..Amount"]<-"Actual" #"(Base & OCO)
-
-Procurement$variable[Procurement$variable=="Base.Enacted.Quantity"]<-"Quant.Base.App"
-Procurement$variable[Procurement$variable=="Base.Enacted.Amount"]<-"Base.App"
-
-Procurement$variable[Procurement$variable=="OCO.Enacted.Quantity"]<-"Quant.OCO.App"
-Procurement$variable[Procurement$variable=="OCO.Enacted.Amount"]<-"OCO.App"
-    
-Procurement$variable[Procurement$variable=="Total.Enacted.Quantity"]<-"Quant.App"
-Procurement$variable[Procurement$variable=="Total.Enacted.Amount"]<-"App"
-
-Procurement$variable[Procurement$variable=="Base.Quantity"]<-"Quant.Base.PB"
-Procurement$variable[Procurement$variable=="Base.Amount"]<-"Base.PB"
-
-Procurement$variable[Procurement$variable=="OCO.Quantity"]<-"Quant.OCO.PB"
-Procurement$variable[Procurement$variable=="OCO.Amount"]<-"OCO.PB"
-    
-Procurement$variable[Procurement$variable=="Total.Quantity"]<-"Quant.PB"
-Procurement$variable[Procurement$variable=="Total.Amount"]<-"PB"
-
-Procurement$variable[Procurement$variable==""]<-"Actual"
-Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
-Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
-Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
+Procurement<-read_and_join(
+    ""
+    ,"RenameComptrollerColumns.csv"
+    ,Procurement
+)
+# 
+# 
+# 
+# Procurement$variable[Procurement$variable==".Base...OCO..Quantity"]<-"Quant.Actual" #"(Base & OCO)
+# Procurement$variable[Procurement$variable==".Base...OCO..Amount"]<-"Actual" #"(Base & OCO)
+# 
+# Procurement$variable[Procurement$variable=="Base.Enacted.Quantity"]<-"Quant.Base.App"
+# Procurement$variable[Procurement$variable=="Base.Enacted.Amount"]<-"Base.App"
+# 
+# Procurement$variable[Procurement$variable=="OCO.Enacted.Quantity"]<-"Quant.OCO.App"
+# Procurement$variable[Procurement$variable=="OCO.Enacted.Amount"]<-"OCO.App"
+#     
+# Procurement$variable[Procurement$variable=="Total.Enacted.Quantity"]<-"Quant.App"
+# Procurement$variable[Procurement$variable=="Total.Enacted.Amount"]<-"App"
+# 
+# Procurement$variable[Procurement$variable=="Base.Quantity"]<-"Quant.Base.PB"
+# Procurement$variable[Procurement$variable=="Base.Amount"]<-"Base.PB"
+# 
+# Procurement$variable[Procurement$variable=="OCO.Quantity"]<-"Quant.OCO.PB"
+# Procurement$variable[Procurement$variable=="OCO.Amount"]<-"OCO.PB"
+#     
+# Procurement$variable[Procurement$variable=="Total.Quantity"]<-"Quant.PB"
+# Procurement$variable[Procurement$variable=="Total.Amount"]<-"PB"
+# 
+# Procurement$variable[Procurement$variable==""]<-"Actual"
+# Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
+# Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
+# Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
 
     
 Procurement$variable<-ordered(Procurement$variable,c("PB",
                                                      "App",
                                                      "Actual",
                                                      "CR",
-                                                     "CR.OCO",
-                                                     "OCO.PB",
-                                                     "Base.PB",
-                                                     "OCO.App",
-                                                     "Base.App",
-                                                     "OCO.Sup",
-                                                     "Quant.PB",
-                                                     "Quant.App",
-                                                     "Quant.Actual",
-                                                     "Quant.CR",
-                                                     "Quant.CR.OCO",
-                                                     "Quant.OCO.PB",
-                                                     "Quant.Base.PB",
-                                                     "Quant.OCO.App",
-                                                     "Quant.Base.App",
-                                                     "Quant.OCO.Sup"
+                                                     "CR_OCO",
+                                                     "OCO_PB",
+                                                     "Base_PB",
+                                                     "OCO_App",
+                                                     "Base_App",
+                                                     "OCO_Sup",
+                                                     "Quant_PB",
+                                                     "Quant_App",
+                                                     "Quant_Actual",
+                                                     "Quant_CR",
+                                                     "Quant_CR_OCO",
+                                                     "Quant_OCO_PB",
+                                                     "Quant_Base_PB",
+                                                     "Quant_OCO_App",
+                                                     "Quant_Base_App",
+                                                     "Quant_OCO_Sup"
 ))
 summary(Procurement$variable)
 Procurement<-subset(Procurement,!is.na(value))
@@ -150,28 +158,51 @@ str(Procurement)
 
 
 
-ProcurementAllColumns<-dcast(Procurement, 
+ProcurementAllColumns<-dcast(subset(Procurement,select=-c(variable,SourceColumn,Consolidate,OriginType)), 
                    Account
-                   +Budget.Activity
-                   +Budget.Activity.Title
+                   +BudgetActivity
+                   +BudgetActivityTitle
                    +BSA
-                   +BSA.Title
-                   +Line.Item
-                   +Line.Item.Title
-                   +Cost.Type
-                   +Cost.Type.Title
+                   +BSAtitle
+                   +LineItem
+                   +LineItemTitle
+                   +CostType
+                   +CostTypeTitle
+                   +AddOrNonAdd
                    +Classified
-                   + FiscalYear~ variable ,sum, fill=NA_real_ )
-
-
+                   + FiscalYear~ AllColumns ,
+                   sum, 
+                   fill=NA_real_ )
 
 write.csv(ProcurementAllColumns,paste("Data\\","P12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
 str(ProcurementAllColumns)
 
 
-RnD <- data.table(read.xlsx2("./Data/r1_display.xlsx", 
+ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
+                             Account
+                             +BudgetActivity
+                             +BudgetActivityTitle
+                             +BSA
+                             +BSAtitle
+                             +LineItem
+                             +LineItemTitle
+                             +CostType
+                             +CostTypeTitle
+                             +Classified
+                             + FiscalYear
+                             + OriginType ~  Consolidate   ,
+                             sum, 
+                             fill=NA_real_ )
+
+
+
+write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep=""), row.names=FALSE,na="")
+str(ProcurementConsolidated)
+
+
+RnD <- read.xlsx2("./Data/r1_display.xlsx", 
                             sheetName = "Exhibit R-1",
-                            startRow=2))
+                            startRow=2)
 
 
 
@@ -189,16 +220,19 @@ RnD$FY.2017.OCO <- as.numeric(as.character(RnD$FY.2017.OCO))
 RnD$FY.2017.Total <- as.numeric(as.character(RnD$FY.2017.Total))
 
 
+RnD$LineNumber <- as.numeric(as.character(RnD$LineNumber))
+
+
 RnD<-melt(RnD
           , id.vars =c("Account"
-                 ,"Account.Title"
+                 ,"AccountTitle"
                  ,"Organization"
-                 ,"Budget.Activity"
-                 ,"Budget.Activity.Title"
-                 ,"Line.Number"
-                 ,"PE"
-                 ,"PE.Title"
-                 ,"Include.in.TOA"
+                 ,"BudgetActivity"
+                 ,"BudgetActivityTitle"
+                 ,"LineNumber"
+                 ,"ProgramElement"
+                 ,"ProgramElementTitle"
+                 ,"IncludeInTOA"
                  ,"Classified"
                  )
           # ,value.name="DollarsThousands"
@@ -207,7 +241,7 @@ RnD<-melt(RnD
 
 RnD$FiscalYear<-as.numeric(substring(as.character(RnD$variable),4,7))
 RnD$variable<-substring(as.character(RnD$variable),9,999)
-
+str(RnD$variable)
 RnD<-read_and_join(
     ""
     ,"RenameComptrollerColumns.csv"
@@ -228,10 +262,10 @@ RnD$variable<-ordered(RnD$variable,c("PB",
                                      "App",
                                      "Actual",
                                      "CR",
-                                     "CR.OCO",
-                                     "OCO.PB",
-                                     "OCO.App",
-                                     "OCO.Sup"
+                                     "CR_OCO",
+                                     "OCO_PB",
+                                     "OCO_App",
+                                     "OCO_Sup"
                                      
 ))
 
@@ -241,17 +275,18 @@ RnD<-subset(RnD,!is.na(value))
 str(RnD)
 
 
-RnDallColumns<-dcast(RnD,  Account+
-               Account.Title+
+RnDallColumns<-dcast(subset(RnD,select=-c(variable,SourceColumn,Consolidate,OriginType)),
+                     Account+
+               AccountTitle+
                Organization+
-               Budget.Activity+
-               Budget.Activity.Title+
-               Line.Number+
-               PE+
-               PE.Title+
-               Include.in.TOA+
+               BudgetActivity+
+               BudgetActivityTitle+
+               LineNumber+
+               ProgramElement+
+            ProgramElementTitle+
+               IncludeInTOA+
                Classified+ 
-               FiscalYear ~ variable ,
+               FiscalYear ~ AllColumns ,
            sum, 
            fill=NA_real_ )
 
@@ -262,6 +297,6 @@ RnDconsolidated<-RnD
 
 
 write.csv(RnDallColumns,paste("Data\\","R12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
-str(RnDallColumns)
-
+str(ProcurementAllColumns$AddOrNonAdd)
+max(nchar(as.character(Procurement$AddOrNonAdd)))
 

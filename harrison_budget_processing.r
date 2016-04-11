@@ -19,9 +19,9 @@ options(warn=1)
 # debug(apply_lookups)
 # debug(CreateDuration)
 #*************************************Lookup Files*****************************************************
-# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
-Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
 require(reshape2)
@@ -29,11 +29,10 @@ require(reshape2)
 source(paste(Path,"helper.r",sep=""))
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
-source(paste(Path,"statistics_aggregators.r",sep=""))
-source(paste(Path,"create_procedural_graphs.r",sep=""))
 
-# setwd("K:\\Development\\Budget")
-setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+
+setwd("K:\\Development\\Budget")
+# setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
 Procurement<-read.csv(
@@ -42,19 +41,19 @@ Procurement<-read.csv(
     stringsAsFactors=TRUE
 )
 colnames(Procurement)
-Procurement<-melt(Procurement
-      , id=.(ID
-          ,Account
-          ,Budget.Activity
-          ,Budget.Activity.Title
-          ,BSA
-          ,BSA.Title
-          ,Line.Item
-          ,Line.Item.Title
-          ,Cost.Type
-          ,Cost.Type.Title
-          ,Category
-          ,Classified)
+Procurement<-reshape2::melt(Procurement
+      , id=c("ID"
+          ,"Account"
+          ,"Budget.Activity"
+          ,"Budget.Activity.Title"
+          ,"BSA"
+          ,"BSA.Title"
+          ,"Line.Item"
+          ,"Line.Item.Title"
+          ,"Cost.Type"
+          ,"Cost.Type.Title"
+          ,"Category"
+          ,"Classified")
       )
 
 
@@ -120,13 +119,13 @@ RnD<-read.csv(
 )
 colnames(RnD)
 RnD<-melt(RnD
-                  , id=.(ID
-                         ,PE
-                         ,PE.Title
-                         ,Budget.Activity
-                         ,Budget.Activity.Title
-                         ,Account
-                         ,Classified)
+                  , id=c("ID"
+                         ,"PE"
+                         ,"PE.Title"
+                         ,"Budget.Activity"
+                         ,"Budget.Activity.Title"
+                         ,"Account"
+                         ,"Classified")
                   # ,value.name="DollarsThousands"
 )
 
