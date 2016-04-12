@@ -20,9 +20,9 @@ options(warn=1)
 # debug(apply_lookups)
 # debug(CreateDuration)
 # *************************************Lookup Files*****************************************************
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
-# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
 require(reshape2)
@@ -32,8 +32,8 @@ source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
 
-setwd("K:\\Development\\Budget")
-# setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+# setwd("K:\\Development\\Budget")
+setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
 Procurement <- read.xlsx2("./Data/p1.xlsx", 
@@ -64,7 +64,12 @@ Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.
 
 
 Procurement<-melt(Procurement,
+<<<<<<< HEAD
                   id.vars=c("AccountDSI"
+=======
+                  id.vars=c("SourceFiscalYear"
+                            ,"AccountDSI"
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                          ,"AccountTitle"
                          ,"Organization"
                          ,"BudgetActivity"
@@ -80,6 +85,8 @@ Procurement<-melt(Procurement,
                          ,"Classified"
                          )
 )
+
+
 
 
 Procurement$FiscalYear<-as.numeric(substring(as.character(Procurement$variable),4,7))
@@ -179,7 +186,12 @@ str(Procurement)
 
 
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
+<<<<<<< HEAD
                              AccountDSI
+=======
+                             SourceFiscalYear
+                             +AccountDSI
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                              +BudgetActivity
                              +BudgetActivityTitle
                              +BSA
@@ -234,7 +246,10 @@ ProcurementsqlColumns<-c(	"ID"  ,
 
 Missing<-ProcurementsqlColumns[!ProcurementsqlColumns %in% colnames(ProcurementConsolidated)]
 ProcurementConsolidated[,Missing]<-NA
+<<<<<<< HEAD
 ProcurementConsolidated$SourceFiscalYear<-2017
+=======
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
 ProcurementConsolidated<-ProcurementConsolidated[,ProcurementsqlColumns]
 
 write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep=""), 
@@ -247,7 +262,7 @@ RnD <- read.xlsx2("./Data/r1_display.xlsx",
                             sheetName = "Exhibit R-1",
                             startRow=2)
 
-
+RnD$SourceFiscalYear<-2017
 
 
 RnD<-standardize_variable_names(Path,RnD)
@@ -268,7 +283,12 @@ RnD$LineNumber <- as.numeric(as.character(RnD$LineNumber))
 
 
 RnD<-melt(RnD
+<<<<<<< HEAD
           , id.vars =c("AccountDSI"
+=======
+          , id.vars =c("SourceFiscalYear"
+                       ,"AccountDSI"
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                  ,"AccountTitle"
                  ,"Organization"
                  ,"BudgetActivity"
@@ -343,7 +363,12 @@ str(RnD)
 # 
 
 RnDconsolidated<-dcast(subset(RnD,select=-c(variable,AllColumns)),
+<<<<<<< HEAD
                      AccountDSI+
+=======
+                     SourceFiscalYear+
+                         AccountDSI+
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                          AccountTitle+
                          Organization+
                          BudgetActivity+
@@ -382,6 +407,13 @@ RnDsqlColumns<-c("ID"
                  ,"EnactedType"
                  ,"SpecialType"
                  ,"ActualTotal") 
+<<<<<<< HEAD
+=======
+
+Missing<-RnDsqlColumns[!RnDsqlColumns %in% colnames(RnDconsolidated)]
+RnDconsolidated[,Missing]<-NA
+RnDconsolidated<-RnDconsolidated[,RnDsqlColumns]
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
 
 Missing<-RnDsqlColumns[!RnDsqlColumns %in% colnames(RnDconsolidated)]
 RnDconsolidated[,Missing]<-NA

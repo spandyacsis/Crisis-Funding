@@ -28,7 +28,6 @@ require(reshape2)
 
 source(paste(Path,"helper.r",sep=""))
 source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep=""))
 
 
 setwd("K:\\Development\\Budget")
@@ -71,6 +70,7 @@ Procurement<-read_and_join(
     ,Procurement
 )
 
+<<<<<<< HEAD
 # Procurement$variable[Procurement$variable==""]<-"Actual"
 # Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
 # Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
@@ -93,7 +93,33 @@ Procurement$AllColumns<-ordered(Procurement$AllColumns,c("PB",
                                                      "Quant_OCO_Sup"
                                                      ))
 summary(Procurement$AllColumns)
+=======
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
 Procurement<-subset(Procurement,!is.na(value))
+
+
+# Procurement$variable[Procurement$variable==""]<-"Actual"
+# Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
+# Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
+# Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
+# Procurement$AllColumns<-ordered(Procurement$AllColumns,c("PB",
+#                                                      "App",
+#                                                      "Actual",
+#                                                      "CR",
+#                                                      "CR_OCO",
+#                                                      "OCO_PB",
+#                                                      "OCO_App",
+#                                                      "OCO_Sup",
+#                                                      "Quant_PB",
+#                                                      "Quant_App",
+#                                                      "Quant_Actual",
+#                                                      "Quant_CR",
+#                                                      "Quant_CR_OCO",
+#                                                      "Quant_OCO_PB",
+#                                                      "Quant_OCO_App",
+#                                                      "Quant_OCO_Sup"
+#                                                      ))
+# summary(Procurement$AllColumns)
 # unique(Procurement$variable)
 # Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
 # Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
@@ -121,7 +147,11 @@ Procurement<-subset(Procurement,!is.na(value))
 # write.csv(ProcurementAllColumns,paste("Data\\","Procurement_Budget_Database_Export_All_Columns.csv",sep=""), row.names=FALSE,na="")
 
 
+<<<<<<< HEAD
 RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
+=======
+Procurement$Consolidate<-ordered(Procurement$Consolidate,c("PBtotal",#Amounts
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                                            "PBtype",
                                            "EnactedTotal",
                                            "EnactedType",
@@ -136,10 +166,29 @@ RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
                                            
 ))
 
+<<<<<<< HEAD
 unique(Procurement$Consolidate)
 
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
                                          ID
+=======
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
+                                           "QuantPBtotal","QuantPBtype")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
+                                               "QuantPBtotal","QuantPBtype")]
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("EnactedTotal","EnactedType","SpecialType",
+                                           "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in%  c("EnactedTotal","EnactedType","SpecialType",
+                                                "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]+1
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("ActualTotal","QuantActualTotal")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in%  c("ActualTotal","QuantActualTotal")]+2
+
+unique(Procurement$Consolidate)
+
+ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
+                                         SourceFiscalYear
+                                         +ID
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                                          +MainAccountCode
                                          +BudgetActivity
                                          +BudgetActivityTitle
@@ -260,8 +309,22 @@ RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",
                                          "ActualTotal"
                                          
 ))
+<<<<<<< HEAD
 
 RnD<-subset(RnD,!is.na(value))
+=======
+
+RnD<-subset(RnD,!is.na(value))
+
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("PBtotal","PBtype")]<-
+    RnD$FiscalYear[RnD$Consolidate %in% c("PBtotal","PBtype")]
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("EnactedTotal","EnactedType","SpecialType")]<-
+    RnD$FiscalYear[RnD$Consolidate %in%  c("EnactedTotal","EnactedType","SpecialType")]+1
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("ActualTotal")]<-
+    RnD$FiscalYear[RnD$Consolidate %in%  c("ActualTotal")]+2
+
+
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
 # RnDallColumns<-dcast(subset(RnD,select=-c(variable,SourceColumn,Consolidate,OriginType)), 
 #            ID+
 #                          ProgramElement+
@@ -283,7 +346,12 @@ RnD<-subset(RnD,!is.na(value))
 
 
 RnDconsolidated<-reshape2::dcast(subset(RnD,select=-c(variable,SourceColumn,AllColumns)), 
+<<<<<<< HEAD
                                          ID+  
+=======
+                                         SourceFiscalYear+
+                                     ID+  
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
                                      ProgramElement+
                                      ProgramElementTitle+
                                      BudgetActivity+

@@ -39,6 +39,8 @@ The script will read this file and extract the web locations for all the Army bu
 3. RUN THE SCRIPT
 
 Open DownloadPDFs.R - you will need R installed.  I used R version _____ and RStudio version 0.99.491 to write it, but it should work with any recent version.  You might need to install some of the packages it uses by typing: 
+=======
+Open DownloadPDFs.R - you will need R installed.  I used R version 3.2.3 and RStudio version 0.99.491 to write it, but it should work with any recent version.  You might need to install some of the packages it uses by typing: 
   install.packages("packagename")
 in the console.  Packages it uses are "stringr", "httr", and "RCurl".
 
@@ -54,3 +56,11 @@ The script checks whether we already have a file before trying to download it, s
 
 KNOWN BUG:
 Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  Simply running the script again will overwrite the broken file with the real one.
+=======
+4. ERROR HANDLING
+
+If the script encounters an error while trying to download a file, it will tell you about it after it finishes running. You can simply run the "DOWNLOAD FILES" section again.  Or, if R crashed, run the whole script again.  The script checks whether we already have a file before trying to download it, so it won't try to re-download everything.
+
+KNOWN BUG:
+Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  I suspect it's a connection problem with some of the DoD websites.  Simply running the script again will overwrite the broken file with the real one.
+>>>>>>> c7747687076b18babce522dca59e151fe6e91063
