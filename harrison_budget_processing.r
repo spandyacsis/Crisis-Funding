@@ -19,20 +19,19 @@ options(warn=1)
 # debug(apply_lookups)
 # debug(CreateDuration)
 #*************************************Lookup Files*****************************************************
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
 # Path<-"~\\FPDS\\R scripts and data\\"
-# Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
+Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
 require(reshape2)
 
 source(paste(Path,"helper.r",sep=""))
 source(paste(Path,"lookups.r",sep=""))
-source(paste(Path,"helper.r",sep=""))
 
 
-setwd("K:\\Development\\Budget")
-# setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
+# setwd("K:\\Development\\Budget")
+setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
 Procurement<-read.csv(
@@ -71,29 +70,31 @@ Procurement<-read_and_join(
     ,Procurement
 )
 
+Procurement<-subset(Procurement,!is.na(value))
+
+
 # Procurement$variable[Procurement$variable==""]<-"Actual"
 # Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
 # Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
 # Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
-Procurement$AllColumns<-ordered(Procurement$AllColumns,c("PB",
-                                                     "App",
-                                                     "Actual",
-                                                     "CR",
-                                                     "CR_OCO",
-                                                     "OCO_PB",
-                                                     "OCO_App",
-                                                     "OCO_Sup",
-                                                     "Quant_PB",
-                                                     "Quant_App",
-                                                     "Quant_Actual",
-                                                     "Quant_CR",
-                                                     "Quant_CR_OCO",
-                                                     "Quant_OCO_PB",
-                                                     "Quant_OCO_App",
-                                                     "Quant_OCO_Sup"
-                                                     ))
-summary(Procurement$AllColumns)
-Procurement<-subset(Procurement,!is.na(value))
+# Procurement$AllColumns<-ordered(Procurement$AllColumns,c("PB",
+#                                                      "App",
+#                                                      "Actual",
+#                                                      "CR",
+#                                                      "CR_OCO",
+#                                                      "OCO_PB",
+#                                                      "OCO_App",
+#                                                      "OCO_Sup",
+#                                                      "Quant_PB",
+#                                                      "Quant_App",
+#                                                      "Quant_Actual",
+#                                                      "Quant_CR",
+#                                                      "Quant_CR_OCO",
+#                                                      "Quant_OCO_PB",
+#                                                      "Quant_OCO_App",
+#                                                      "Quant_OCO_Sup"
+#                                                      ))
+# summary(Procurement$AllColumns)
 # unique(Procurement$variable)
 # Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
 # Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
@@ -121,7 +122,7 @@ Procurement<-subset(Procurement,!is.na(value))
 # write.csv(ProcurementAllColumns,paste("Data\\","Procurement_Budget_Database_Export_All_Columns.csv",sep=""), row.names=FALSE,na="")
 
 
-RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
+Procurement$Consolidate<-ordered(Procurement$Consolidate,c("PBtotal",#Amounts
                                            "PBtype",
                                            "EnactedTotal",
                                            "EnactedType",
@@ -136,10 +137,22 @@ RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
                                            
 ))
 
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
+                                           "QuantPBtotal","QuantPBtype")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
+                                               "QuantPBtotal","QuantPBtype")]
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("EnactedTotal","EnactedType","SpecialType",
+                                           "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in%  c("EnactedTotal","EnactedType","SpecialType",
+                                                "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]+1
+Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("ActualTotal","QuantActualTotal")]<-
+    Procurement$FiscalYear[Procurement$Consolidate %in%  c("ActualTotal","QuantActualTotal")]+2
+
 unique(Procurement$Consolidate)
 
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
-                                         ID
+                                         SourceFiscalYear
+                                         +ID
                                          +MainAccountCode
                                          +BudgetActivity
                                          +BudgetActivityTitle
@@ -262,6 +275,15 @@ RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",
 ))
 
 RnD<-subset(RnD,!is.na(value))
+
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("PBtotal","PBtype")]<-
+    RnD$FiscalYear[RnD$Consolidate %in% c("PBtotal","PBtype")]
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("EnactedTotal","EnactedType","SpecialType")]<-
+    RnD$FiscalYear[RnD$Consolidate %in%  c("EnactedTotal","EnactedType","SpecialType")]+1
+RnD$SourceFiscalYear[RnD$Consolidate %in% c("ActualTotal")]<-
+    RnD$FiscalYear[RnD$Consolidate %in%  c("ActualTotal")]+2
+
+
 # RnDallColumns<-dcast(subset(RnD,select=-c(variable,SourceColumn,Consolidate,OriginType)), 
 #            ID+
 #                          ProgramElement+
@@ -283,7 +305,8 @@ RnD<-subset(RnD,!is.na(value))
 
 
 RnDconsolidated<-reshape2::dcast(subset(RnD,select=-c(variable,SourceColumn,AllColumns)), 
-                                         ID+  
+                                         SourceFiscalYear+
+                                     ID+  
                                      ProgramElement+
                                      ProgramElementTitle+
                                      BudgetActivity+
