@@ -42,7 +42,7 @@ Procurement <- read.xlsx2("./Data/p1.xlsx",
 
 
 Procurement<-standardize_variable_names(Path,Procurement)
-
+colnames(Procurement)[colnames(Procurement)=="Account"]<-"AccountDSI"
 
 colnames(Procurement)
 Procurement$FY.2015..Base...OCO..Quantity <- as.numeric(as.character(Procurement$FY.2015..Base...OCO..Quantity))
@@ -64,7 +64,7 @@ Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.
 
 
 Procurement<-melt(Procurement,
-                  id.vars=c("Account"
+                  id.vars=c("AccountDSI"
                          ,"AccountTitle"
                          ,"Organization"
                          ,"BudgetActivity"
@@ -156,30 +156,30 @@ Procurement<-subset(Procurement,!is.na(value))
 
 str(Procurement)
 
-
-
-ProcurementAllColumns<-dcast(subset(Procurement,select=-c(variable,SourceColumn,Consolidate,OriginType)), 
-                   Account
-                   +BudgetActivity
-                   +BudgetActivityTitle
-                   +BSA
-                   +BSAtitle
-                   +LineItem
-                   +LineItemTitle
-                   +CostType
-                   +CostTypeTitle
-                   +AddOrNonAdd
-                   +Classified
-                   + FiscalYear~ AllColumns ,
-                   sum, 
-                   fill=NA_real_ )
-
-write.csv(ProcurementAllColumns,paste("Data\\","P12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
-str(ProcurementAllColumns)
+# 
+# 
+# ProcurementAllColumns<-dcast(subset(Procurement,select=-c(variable,SourceColumn,Consolidate,OriginType)), 
+#                    Account
+#                    +BudgetActivity
+#                    +BudgetActivityTitle
+#                    +BSA
+#                    +BSAtitle
+#                    +LineItem
+#                    +LineItemTitle
+#                    +CostType
+#                    +CostTypeTitle
+#                    +AddOrNonAdd
+#                    +Classified
+#                    + FiscalYear~ AllColumns ,
+#                    sum, 
+#                    fill=NA_real_ )
+# 
+# write.csv(ProcurementAllColumns,paste("Data\\","P12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
+# str(ProcurementAllColumns)
 
 
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
-                             Account
+                             AccountDSI
                              +BudgetActivity
                              +BudgetActivityTitle
                              +BSA
@@ -196,7 +196,50 @@ ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,S
 
 
 
-write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep=""), row.names=FALSE,na="")
+
+ProcurementsqlColumns<-c(	"ID"  ,
+                          "SourceFiscalYear"  ,
+                          "AccountDSI"  ,
+                          "TreasuryAgencyCode"  ,
+                          "MainAccountCode"  ,
+                          "AccountTitle"  ,
+                          "Organization"  ,
+                          "BudgetActivity"  ,
+                          "BudgetActivityTitle"  ,
+                          "LineNumber" ,
+                          "BSA"   ,
+                          "BSAtitle"  ,
+                          "LineItem"  ,
+                          "LineItemTitle"  ,
+                          "CostType"  ,
+                          "CostTypeTitle"  ,
+                          "AddOrNonAdd"  ,
+                          "Classified"  ,
+                          "Category"  ,
+                          "FiscalYear"  ,
+                          "OriginType" ,
+                          "PBtotal" ,
+                          "PBtype"  ,
+                          "EnactedTotal"  ,
+                          "EnactedType"  ,
+                          "SpecialType"  ,
+                          "ActualTotal"  ,
+                          "QuantPBtotal"  ,
+                          "QuantPBtype"  ,
+                          "QuantEnactedTotal"  ,
+                          "QuantEnactedType"  ,
+                          "QuantSpecialTotal"  ,
+                          "QuantActualTotal"  
+) 
+
+Missing<-ProcurementsqlColumns[!ProcurementsqlColumns %in% colnames(ProcurementConsolidated)]
+ProcurementConsolidated[,Missing]<-NA
+ProcurementConsolidated$SourceFiscalYear<-2017
+ProcurementConsolidated<-ProcurementConsolidated[,ProcurementsqlColumns]
+
+write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep=""), 
+          row.names=FALSE,
+          na="")
 str(ProcurementConsolidated)
 
 
@@ -208,6 +251,7 @@ RnD <- read.xlsx2("./Data/r1_display.xlsx",
 
 
 RnD<-standardize_variable_names(Path,RnD)
+colnames(RnD)[colnames(RnD)=="Account"]<-"AccountDSI"
 colnames(RnD)
 
 
@@ -224,7 +268,7 @@ RnD$LineNumber <- as.numeric(as.character(RnD$LineNumber))
 
 
 RnD<-melt(RnD
-          , id.vars =c("Account"
+          , id.vars =c("AccountDSI"
                  ,"AccountTitle"
                  ,"Organization"
                  ,"BudgetActivity"
@@ -239,9 +283,11 @@ RnD<-melt(RnD
 )
 
 
+
 RnD$FiscalYear<-as.numeric(substring(as.character(RnD$variable),4,7))
 RnD$variable<-substring(as.character(RnD$variable),9,999)
 str(RnD$variable)
+
 RnD<-read_and_join(
     ""
     ,"RenameComptrollerColumns.csv"
@@ -274,29 +320,77 @@ colnames(RnD)
 RnD<-subset(RnD,!is.na(value))
 str(RnD)
 
+# 
+# RnDallColumns<-dcast(subset(RnD,select=-c(variable,SourceColumn,Consolidate,OriginType)),
+#                      Account+
+#                AccountTitle+
+#                Organization+
+#                BudgetActivity+
+#                BudgetActivityTitle+
+#                LineNumber+
+#                ProgramElement+
+#             ProgramElementTitle+
+#                IncludeInTOA+
+#                Classified+ 
+#                FiscalYear ~ AllColumns ,
+#            sum, 
+#            fill=NA_real_ )
+# 
+# 
+# 
+# 
+# write.csv(RnDallColumns,paste("Data\\","R12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
+# 
 
-RnDallColumns<-dcast(subset(RnD,select=-c(variable,SourceColumn,Consolidate,OriginType)),
-                     Account+
-               AccountTitle+
-               Organization+
-               BudgetActivity+
-               BudgetActivityTitle+
-               LineNumber+
-               ProgramElement+
-            ProgramElementTitle+
-               IncludeInTOA+
-               Classified+ 
-               FiscalYear ~ AllColumns ,
-           sum, 
-           fill=NA_real_ )
-
-
-RnDconsolidated<-RnD
-
+RnDconsolidated<-dcast(subset(RnD,select=-c(variable,AllColumns)),
+                     AccountDSI+
+                         AccountTitle+
+                         Organization+
+                         BudgetActivity+
+                         BudgetActivityTitle+
+                         LineNumber+
+                         ProgramElement+
+                         ProgramElementTitle+
+                         IncludeInTOA+
+                         Classified+ 
+                         FiscalYear+
+                         OriginType ~ Consolidate ,
+                     sum, 
+                     fill=NA_real_ )
 
 
 
-write.csv(RnDallColumns,paste("Data\\","R12016_AllColumns.csv",sep=""), row.names=FALSE,na="")
-str(ProcurementAllColumns$AddOrNonAdd)
-max(nchar(as.character(Procurement$AddOrNonAdd)))
+RnDsqlColumns<-c("ID"
+                 ,"SourceFiscalYear"
+                 ,"AccountDSI"
+                 ,"TreasuryAgencyCode"
+                 ,"MainAccountCode"
+                 ,"AccountTitle"
+                 ,"Organization"
+                 ,"BudgetActivity"
+                 ,"BudgetActivityTitle"
+                 ,"LineNumber"
+                 ,"ProgramElement"
+                 ,"ProgramElementTitle"
+                 ,"IncludeInTOA"
+                 ,"Classified"
+                 ,"FiscalYear"
+                 ,"OriginType"
+                 ,"PBtotal"
+                 ,"PBtype"
+                 ,"EnactedTotal"
+                 ,"EnactedType"
+                 ,"SpecialType"
+                 ,"ActualTotal") 
+
+Missing<-RnDsqlColumns[!RnDsqlColumns %in% colnames(RnDconsolidated)]
+RnDconsolidated[,Missing]<-NA
+RnDconsolidated<-RnDconsolidated[,RnDsqlColumns]
+
+RnDconsolidated$SourceFiscalYear<-2017
+
+write.csv(RnDconsolidated,paste("Data\\","R12016_Consolidated.csv",sep=""), 
+          row.names=FALSE,
+          na="")
+
 

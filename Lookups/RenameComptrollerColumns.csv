@@ -16,7 +16,7 @@ Total.Amount,Comptroller,PB,PBtotal,Total
 .Base...OCO.,Comptroller,Actual,ActualTotal,Total
 Base.Enacted,Comptroller,Base_App,EnactedType,Base
 OCO.Enacted,Comptroller,OCO_App,EnactedType,OCO
-Total.Enacted,Comptroller,Quant_App,QuantEnactedTotal,Total
+Total.Enacted,Comptroller,App,EnactedTotal,Total
 Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
