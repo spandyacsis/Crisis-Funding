@@ -110,7 +110,10 @@ for(i in seq_along(pagelist)) {
       
       ### Create the individual file name for the PDF as it will be saved
       pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.pdf")
-      
+      for(i in seq_along(pdfname)){
+            pdfname[i] <- unlist(strsplit(pdfname[i], "/"))[2]
+            pdfname[i] <- paste("/", pagename, "_", pdfname[i], sep="")
+      }
       ### Combine the agency, page, and file names to create the entire filepath
       savepath <- vector("character", length = 0)
       for(j in seq_along(pdfurl)){
@@ -154,6 +157,9 @@ pdfurl <- paste("http:", pdfs, sep = "")
 
 # local file name of PDF, will be added to list for local save location
 pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.pdf")
+for(i in seq_along(pdfname)){
+      pdfname[i] <- unlist(strsplit(pdfname[i], "/"))[2]
+}
 
 # loop over each Army budget PDF name found in the local file and parse its name
 # to determine what year it came from, so it can be saved in a directory
@@ -164,8 +170,8 @@ for(j in seq_along(pdfs)){
       if(is.na(pagename2[j])){pagename2[j] <- "17"}
       
       
-      savepath[j] <- paste(from, "/", pagename2[j], pdfname[j],
-                           sep = "")
+      savepath[j] <- paste(from, "/", pagename2[j], "/", pagename2[j],
+                           "_", pdfname[j], sep = "")
 }
 
 # add Army PDFs to the list of other PDFs for download, and add their local

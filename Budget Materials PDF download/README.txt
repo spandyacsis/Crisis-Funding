@@ -56,11 +56,9 @@ The script checks whether we already have a file before trying to download it, s
 
 KNOWN BUG:
 Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  Simply running the script again will overwrite the broken file with the real one.
-=======
-4. ERROR HANDLING
 
-If the script encounters an error while trying to download a file, it will tell you about it after it finishes running. You can simply run the "DOWNLOAD FILES" section again.  Or, if R crashed, run the whole script again.  The script checks whether we already have a file before trying to download it, so it won't try to re-download everything.
 
-KNOWN BUG:
-Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  I suspect it's a connection problem with some of the DoD websites.  Simply running the script again will overwrite the broken file with the real one.
->>>>>>> c7747687076b18babce522dca59e151fe6e91063
+
+5. UPDATE THE PDF ARCHIVE
+
+Open Adobe Acrobat Pro, which most computers seem to already have.  Navigate to Tools > Document Processing > Full Text Index with Catalog.  You want to open index, then point it at "Complete Archive.pdx" in "G:/Defense Budget Documents/AutoDownloaded Archive".  Update the archive by selecting the AutoDownloaded Archive folder, which will include all PDFs in the subfolders.  This will take about an hour to run.
