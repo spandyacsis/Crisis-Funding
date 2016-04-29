@@ -1,7 +1,7 @@
 INSTRUCTIONS FOR USING AUTOMATIC BUDGET DOWNLOAD SCRIPT (DownloadPDFs.R)
 L.Lipsey for DIIG - April 2016
 
-The script will automatically scan every page listed in pagelist.txt, find all the PDFs linked on thise page, and download any that we don't already have to the folder "K:/Development/Budget/Budget Materials PDF Download". It creates sub-folders there to organize the PDFs, based on which webpage the PDF came from. 
+The script will automatically scan every page listed in pagelist.txt, find all the PDFs linked on thise page, and download any that we don't already have to the folder "G:/Defense Budget Documents/AutoDownloaded Archive". It creates sub-folders there to organize the PDFs, based on which webpage the PDF came from. 
 
 The comptroller folder is going to look disorganized - that's because the comptroller's *website* is disorganized, and I didn't find an easy way to reorganize the files from it.  Similarly, the Air Force names its budget PDFs with unhelpful sequential numbers instead of document titles.  I didn't attempt to rename them to anything more useful.
 
@@ -13,7 +13,7 @@ TO USE:
 
 The file pagelist.txt holds all the URLs (web addresses) for pages containing budget PDF links. Copy the web address for any additional webpages you want to scan, add them to that list, and save the text file. The script should recognize anything from the Comptroller, Navy, or Air Force site and categorize it correctly.  Files from other sites will be added to the "MiscOther" folder.  Army is a special case, explained below. 
 
-Also, the Air Force made a "current year" page instead of a FY17 page.  Presumably they'll create a FY17 page when they put FY18 stuff on the "current year" page.  We should probably rename the "AirForce/Current" folder on the K drive to "AirForce/17" before running the script to update for FY18.  It will automatically create a new "Current" folder with the FY18 documents if the Air Force organizes it that way again.
+Also, the Air Force made a "current year" page instead of a FY17 page.  Presumably they'll create a FY17 page when they put FY18 stuff on the "current year" page.  We should probably rename the "AirForce/Current" folder on the G drive to "AirForce/17" before running the script to update for FY18.  It will automatically create a new "Current" folder with the FY18 documents if the Air Force organizes it that way again.
 
 
 
@@ -56,11 +56,9 @@ The script checks whether we already have a file before trying to download it, s
 
 KNOWN BUG:
 Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  Simply running the script again will overwrite the broken file with the real one.
-=======
-4. ERROR HANDLING
 
-If the script encounters an error while trying to download a file, it will tell you about it after it finishes running. You can simply run the "DOWNLOAD FILES" section again.  Or, if R crashed, run the whole script again.  The script checks whether we already have a file before trying to download it, so it won't try to re-download everything.
 
-KNOWN BUG:
-Sometimes the script will download a broken PDF, of file size 25 bytes, but with the correct name and stored in the correct location.  I don't know why this happens, and it doesn't happen to the same files consistently.  I suspect it's a connection problem with some of the DoD websites.  Simply running the script again will overwrite the broken file with the real one.
->>>>>>> c7747687076b18babce522dca59e151fe6e91063
+
+5. UPDATE THE PDF ARCHIVE
+
+Open Adobe Acrobat Pro, which most computers seem to already have.  Navigate to Tools > Document Processing > Full Text Index with Catalog.  You want to open index, then point it at "Complete Archive.pdx" in "G:/Defense Budget Documents/AutoDownloaded Archive".  Update the archive by selecting the AutoDownloaded Archive folder, which will include all PDFs in the subfolders.  This will take about an hour to run.
