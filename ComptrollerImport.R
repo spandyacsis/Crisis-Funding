@@ -61,7 +61,7 @@ Procurement$FY.2017.Total.Quantity <- as.numeric(as.character(Procurement$FY.201
 Procurement$FY.2017.Total.Amount <- as.numeric(as.character(Procurement$FY.2017.Total.Amount))
 Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.OCO.Quantity))
 
-
+# View(subset(Procurement,FY.2016.Total.Enacted.Amount>0))
 
 Procurement<-melt(Procurement,
                   id.vars=c("SourceFiscalYear"
@@ -89,7 +89,6 @@ Procurement$FiscalYear<-as.numeric(substring(as.character(Procurement$variable),
 Procurement$variable<-substring(as.character(Procurement$variable),9,999)
 
 
-
  
 #I'm probably going to switch this to a CSV
 Procurement<-read_and_join(
@@ -97,6 +96,10 @@ Procurement<-read_and_join(
     ,"RenameComptrollerColumns.csv"
     ,Procurement
 )
+
+# 
+# unique(Procurement$variable)
+# View(subset(Procurement,variable=="Total.Enacted.Amount"))
 
 
 #     
@@ -124,7 +127,6 @@ Procurement<-read_and_join(
 # unique(Procurement$AllColumns)
 unique(Procurement$Consolidate)
 
-View(subset(Procurement,AllColumns=="App"))
 
 Procurement<-subset(Procurement,!is.na(value))
 
@@ -217,7 +219,7 @@ ProcurementConsolidated[,Missing]<-NA
 
 ProcurementConsolidated<-ProcurementConsolidated[,ProcurementsqlColumns]
 
-write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep=""), 
+write.csv(ProcurementConsolidated,paste("Data\\","P1_2017_Consolidated.csv",sep=""), 
           row.names=FALSE,
           na="")
 str(ProcurementConsolidated)
@@ -371,7 +373,7 @@ RnDconsolidated[,Missing]<-NA
 RnDconsolidated<-RnDconsolidated[,RnDsqlColumns]
 
 
-write.csv(RnDconsolidated,paste("Data\\","R12016_Consolidated.csv",sep=""), 
+write.csv(RnDconsolidated,paste("Data\\","R1_2017_Consolidated.csv",sep=""), 
           row.names=FALSE,
           na="")
 
