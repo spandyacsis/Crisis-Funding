@@ -20,10 +20,11 @@ library(RCurl)          # for downloading
 originalwd <- getwd()
 
 # Set location for downloads
-setwd("K:/Development/Budget/Budget Materials PDF download")
+setwd("G:/Defense Budget Documents/AutoDownloaded Archive")
 
 # Read in URLS from pagelist file
-pagelist <- as.character(unlist(read.table("pagelist.txt")))
+pagelist <- as.character(unlist(read.table(
+      "K:/Development/Budget/Budget Materials PDF download/pagelist.txt")))
 
 # Initialize lists for PDF URLs and local save locations
 URLsToSave <- vector("character", length = 0)
@@ -135,7 +136,8 @@ if(errorcount > 0) {
 ################################################################################
 
 # Read in locally saved file
-contents <- paste(readLines("view-source_www.asafm.army.mil_Document.aspx.html"),
+contents <- paste(readLines(
+"K:/Development/Budget/Budget Materials PDF download/view-source_www.asafm.army.mil_Document.aspx.html"),
                   collapse="\n")
 
 # Extract PDF names from local file using regular expressions
@@ -206,6 +208,7 @@ for(i in seq_along(URLsToSave)){
                      error = function(e){errorcount <- errorcount + 1; e})
             }
       }
+      cat(paste("Checked",i,"of",length(URLsToSave), "\n", sep = " "))
 }
 
 if(errorcount > 0) {

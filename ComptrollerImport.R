@@ -36,7 +36,7 @@ setwd("K:\\Development\\Budget")
 # setwd("C:\\Users\\Greg Sanders\\Documents\\Budget")
 
 # debug(create_procedural_graphs
-Procurement <- read.xlsx2("./Data/p1.xlsx", 
+Procurement <- read.xlsx2("./Data/p1_FY2017.xlsx", 
                             sheetName = "Exhibit P-1",
                             startRow=2)
 
@@ -88,7 +88,6 @@ Procurement<-melt(Procurement,
 Procurement$FiscalYear<-as.numeric(substring(as.character(Procurement$variable),4,7))
 Procurement$variable<-substring(as.character(Procurement$variable),9,999)
 
-unique(Procurement$variable)
 
 
  
@@ -98,64 +97,37 @@ Procurement<-read_and_join(
     ,"RenameComptrollerColumns.csv"
     ,Procurement
 )
-# 
-# 
-# 
-# Procurement$variable[Procurement$variable==".Base...OCO..Quantity"]<-"Quant.Actual" #"(Base & OCO)
-# Procurement$variable[Procurement$variable==".Base...OCO..Amount"]<-"Actual" #"(Base & OCO)
-# 
-# Procurement$variable[Procurement$variable=="Base.Enacted.Quantity"]<-"Quant.Base.App"
-# Procurement$variable[Procurement$variable=="Base.Enacted.Amount"]<-"Base.App"
-# 
-# Procurement$variable[Procurement$variable=="OCO.Enacted.Quantity"]<-"Quant.OCO.App"
-# Procurement$variable[Procurement$variable=="OCO.Enacted.Amount"]<-"OCO.App"
-#     
-# Procurement$variable[Procurement$variable=="Total.Enacted.Quantity"]<-"Quant.App"
-# Procurement$variable[Procurement$variable=="Total.Enacted.Amount"]<-"App"
-# 
-# Procurement$variable[Procurement$variable=="Base.Quantity"]<-"Quant.Base.PB"
-# Procurement$variable[Procurement$variable=="Base.Amount"]<-"Base.PB"
-# 
-# Procurement$variable[Procurement$variable=="OCO.Quantity"]<-"Quant.OCO.PB"
-# Procurement$variable[Procurement$variable=="OCO.Amount"]<-"OCO.PB"
-#     
-# Procurement$variable[Procurement$variable=="Total.Quantity"]<-"Quant.PB"
-# Procurement$variable[Procurement$variable=="Total.Amount"]<-"PB"
-# 
-# Procurement$variable[Procurement$variable==""]<-"Actual"
-# Procurement$variable[Procurement$variable=="CR.Quant"]<-"Quant.CR"
-# Procurement$variable[Procurement$variable=="CR.OCO.Quant"]<-"Quant.CR.OCO"
-# Procurement$variable[Procurement$variable=="Quant"]<-"Quant.Actual"
 
-    
-Procurement$variable<-ordered(Procurement$variable,c("PB",
-                                                     "App",
-                                                     "Actual",
-                                                     "CR",
-                                                     "CR_OCO",
-                                                     "OCO_PB",
-                                                     "Base_PB",
-                                                     "OCO_App",
-                                                     "Base_App",
-                                                     "OCO_Sup",
-                                                     "Quant_PB",
-                                                     "Quant_App",
-                                                     "Quant_Actual",
-                                                     "Quant_CR",
-                                                     "Quant_CR_OCO",
-                                                     "Quant_OCO_PB",
-                                                     "Quant_Base_PB",
-                                                     "Quant_OCO_App",
-                                                     "Quant_Base_App",
-                                                     "Quant_OCO_Sup"
-))
-summary(Procurement$variable)
+
+#     
+# Procurement$AllColumns<-ordered(Procurement$AllColumns,c("PB",
+#                                                      "App",
+#                                                      "Actual",
+#                                                      "CR",
+#                                                      "CR_OCO",
+#                                                      "OCO_PB",
+#                                                      "Base_PB",
+#                                                      "OCO_App",
+#                                                      "Base_App",
+#                                                      "OCO_Sup",
+#                                                      "Quant_PB",
+#                                                      "Quant_App",
+#                                                      "Quant_Actual",
+#                                                      "Quant_CR",
+#                                                      "Quant_CR_OCO",
+#                                                      "Quant_OCO_PB",
+#                                                      "Quant_Base_PB",
+#                                                      "Quant_OCO_App",
+#                                                      "Quant_Base_App",
+#                                                      "Quant_OCO_Sup"
+# ))
+# unique(Procurement$AllColumns)
+unique(Procurement$Consolidate)
+
+View(subset(Procurement,AllColumns=="App"))
+
 Procurement<-subset(Procurement,!is.na(value))
-# unique(Procurement$variable)
-# Procurement$Type[substring(as.character(Procurement$variable),1,5)=="Quant"]<-"Quantity"
-# Procurement$Type[substring(as.character(Procurement$variable),1,5)!="Quant"]<-"Dollars"
-# Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]<-
-# substring(as.character(Procurement$variable[substring(as.character(Procurement$variable),1,5)=="Quant"]),7,999)
+
 
 str(Procurement)
 
@@ -184,8 +156,11 @@ str(Procurement)
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
                              SourceFiscalYear
                              +AccountDSI
+                             +AccountTitle
+                             +Organization
                              +BudgetActivity
                              +BudgetActivityTitle
+                             +LineNumber
                              +BSA
                              +BSAtitle
                              +LineItem
@@ -193,6 +168,7 @@ ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,S
                              +CostType
                              +CostTypeTitle
                              +Classified
+                             +AddOrNonAdd
                              + FiscalYear
                              + OriginType ~  Consolidate   ,
                              sum, 
@@ -247,7 +223,7 @@ write.csv(ProcurementConsolidated,paste("Data\\","P12016_Consolidated.csv",sep="
 str(ProcurementConsolidated)
 
 
-RnD <- read.xlsx2("./Data/r1_display.xlsx", 
+RnD <- read.xlsx2("./Data/r1_display_FY2017.xlsx", 
                             sheetName = "Exhibit R-1",
                             startRow=2)
 

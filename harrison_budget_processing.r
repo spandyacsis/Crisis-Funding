@@ -55,7 +55,7 @@ Procurement<-reshape2::melt(Procurement
           ,"LineItemTitle"
           ,"CostType"
           ,"CostTypeTitle"
-          ,"Category"
+          ,"ProcurementCategory"
           ,"Classified")
       )
 
@@ -113,7 +113,7 @@ Procurement<-subset(Procurement,!is.na(value))
 #                    +LineItemTitle
 #                    +CostType
 #                    +CostTypeTitle
-#                    +Category
+#                    +ProcurementCategory
 #                    +Classified
 #                    + FiscalYear~ AllColumns ,sum, fill=NA_real_ )
 # 
@@ -124,7 +124,7 @@ Procurement<-subset(Procurement,!is.na(value))
 
 
 
-RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
+Procurement$Consolidate<-ordered(Procurement$Consolidate,c("PBtotal",#Amounts
                                            "PBtype",
                                            "EnactedTotal",
                                            "EnactedType",
@@ -134,10 +134,26 @@ RnD$Consolidate<-ordered(RnD$Consolidate,c("PBtotal",#Amounts
                                            "QuantPBtype",
                                            "QuantEnactedTotal",
                                            "QuantEnactedType",
-                                           "QuantSpecialTotal",
+                                           # "QuantSpecialTotal",
+                                           "QuantSpecialType",  
                                            "QuantActualTotal"
                                            
 ))
+
+# 
+# "PBtotal"
+# "PBtype"
+# "EnactedTotal"
+# "EnactedType"
+# "SpecialType"
+# "ActualTotal"                                       
+# "QuantPBtotal"
+# "QuantPBtype" 
+# "QuantEnactedTotal"
+# "QuantEnactedType" 
+# 
+# "QuantActualTotal" 
+#              
 
 
 
@@ -147,13 +163,15 @@ Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
     Procurement$FiscalYear[Procurement$Consolidate %in% c("PBtotal","PBtype",
                                                "QuantPBtotal","QuantPBtype")]
 Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("EnactedTotal","EnactedType","SpecialType",
-                                           "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]<-
+                                           "QuantEnactedTotal","QuantEnactedType","QuantSpecialType")]<-
     Procurement$FiscalYear[Procurement$Consolidate %in%  c("EnactedTotal","EnactedType","SpecialType",
-                                                "QuantEnactedTotal","QuantEnactedType","QuantSpecialTotal")]+1
+                                                "QuantEnactedTotal","QuantEnactedType","QuantSpecialType")]+1
 Procurement$SourceFiscalYear[Procurement$Consolidate %in% c("ActualTotal","QuantActualTotal")]<-
     Procurement$FiscalYear[Procurement$Consolidate %in%  c("ActualTotal","QuantActualTotal")]+2
 
-unique(Procurement$Consolidate)
+
+
+
 
 ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,SourceColumn,AllColumns)), 
                                          SourceFiscalYear
@@ -167,7 +185,7 @@ ProcurementConsolidated<-reshape2::dcast(subset(Procurement,select=-c(variable,S
                                          +LineItemTitle
                                          +CostType
                                          +CostTypeTitle
-                                         +Category
+                                         +ProcurementCategory
                                          +Classified
                                          + FiscalYear
                                          + OriginType~  Consolidate   ,
@@ -195,7 +213,7 @@ ProcurementsqlColumns<-c(	"ID"  ,
                           "CostTypeTitle"  ,
                           "AddOrNonAdd"  ,
                           "Classified"  ,
-                          "Category"  ,
+                          "ProcurementCategory"  ,
                           "FiscalYear"  ,
                           "OriginType" ,
                           "PBtotal" ,
@@ -208,7 +226,7 @@ ProcurementsqlColumns<-c(	"ID"  ,
                           "QuantPBtype"  ,
                           "QuantEnactedTotal"  ,
                           "QuantEnactedType"  ,
-                          "QuantSpecialTotal"  ,
+                          "QuantSpecialType"  ,
                           "QuantActualTotal"  
                           ) 
 
@@ -354,8 +372,9 @@ RnDconsolidated[,Missing]<-NA
 RnDconsolidated<-RnDconsolidated[,RnDsqlColumns]
 
 
-write.csv(RnDconsolidated,paste("Data\\","RnD_Budget_Database_Consolidated.csv",sep=""), 
+write.csv(RnDconsolidated,paste("Data\\","RDTE_Budget_Database_Consolidated.csv",sep=""), 
           row.names=FALSE,
           na="")
 str(ProcurementConsolidated)
+
 
