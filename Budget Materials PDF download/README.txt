@@ -28,9 +28,9 @@ The Army puts budget materials for different fiscal years in a javascript select
 	- Right click on a blank area of the page, and click View Page Source.
 	- Your browser opens a new tab and tells you to confirm resubmission.  Click refresh.
 	- Right click on a blank area and click Save As.
-	- Save the page in this folder ("Budget Materials PDF Download") with the default name
-	  and type ("view-source_www.asafm.army.mil_Document.aspx.html") Don't change the name,
-	  or the script won't find it.
+	- Save the page in this folder ("Budget Materials PDF Download" on K:/Development/Budget)
+	  with the default name and type ("view-source_www.asafm.army.mil_Document.aspx.html")
+	  Don't change the name, or the script won't find it.
 	
 The script will read this file and extract the web locations for all the Army budget PDFs from it.
 
