@@ -58,9 +58,10 @@ for(i in seq_along(pagelist)) {
       # build a list of the URLs of all PDFs linked within the read website
       contents = content(html, as="text")
       pdfs <- unlist(str_extract_all(contents,
-                                     '/[A-Za-z0-9-._~:/?#@!%$&()*+,;=]*?\\.pdf'))
+                    '/[A-Za-z0-9-._~:/?#@!%$&()*+,;=]*?\\.[Pp][Dd][Ff]'))
       
-      # Create "from" and "pagename" vectors to determine file structure when saving
+      # Create "from" and "pagename" vectors to determine file structure
+      # when saving
       # "from" : which agency produced the PDF
       # "pagename": which page was the PDF found on
       if(grepl("comptroller.defense.gov", url)){
@@ -109,7 +110,7 @@ for(i in seq_along(pagelist)) {
       
       
       ### Create the individual file name for the PDF as it will be saved
-      pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.pdf")
+      pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.[Pp][Dd][Ff]")
       for(i in seq_along(pdfname)){
             pdfname[i] <- unlist(strsplit(pdfname[i], "/"))[2]
             pdfname[i] <- paste("/", pagename, "_", pdfname[i], sep="")
@@ -119,6 +120,14 @@ for(i in seq_along(pagelist)) {
       for(j in seq_along(pdfurl)){
             savepath[j] <- paste(from, "/", pagename, pdfname[j],
                                  sep = "")
+      }
+      
+      # rename duplicated savepaths so they don't overwrite
+      dupeindex <- duplicated(savepath)
+      for(i in seq_along(savepath)){
+          if(dupeindex[i]){
+              savepath[i] <- gsub('\\.[Pp][Dd][Ff]', '_2.pdf', savepath[i])    
+          }
       }
       
       # Add PDF web address to list URLsToSave for download later
@@ -145,7 +154,7 @@ contents <- paste(readLines(
 
 # Extract PDF names from local file using regular expressions
 pdfs <- unique(unlist(str_extract_all(contents,
-                                      '/[A-Za-z0-9-._~:/?#@!%$&()*+,;=]*?\\.pdf')))
+                            '/[A-Za-z0-9-._~:/?#@!%$&()*+,;=]*?\\.[Pp][Dd][Ff]')))
 # initialize variables used in loop
 pagename1 <- vector("character", length = 0)
 pagename2 <- vector("character", length = 0)
@@ -156,7 +165,7 @@ from <- "Army"
 pdfurl <- paste("http:", pdfs, sep = "")
 
 # local file name of PDF, will be added to list for local save location
-pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.pdf")
+pdfname <- str_extract(pdfurl, "/[A-Za-z0-9-._~:?#@!%$&()*+,;=]*?\\.[Pp][Dd][Ff]")
 for(i in seq_along(pdfname)){
       pdfname[i] <- unlist(strsplit(pdfname[i], "/"))[2]
 }
@@ -173,6 +182,15 @@ for(j in seq_along(pdfs)){
       savepath[j] <- paste(from, "/", pagename2[j], "/", pagename2[j],
                            "_", pdfname[j], sep = "")
 }
+
+# rename duplicated savepaths so they don't overwrite
+dupeindex <- duplicated(savepath)
+for(i in seq_along(savepath)){
+    if(dupeindex[i]){
+        savepath[i] <- gsub('\\.[Pp][Dd][Ff]', '_2.pdf', savepath[i])    
+    }
+}
+
 
 # add Army PDFs to the list of other PDFs for download, and add their local
 # save locations to the list of other local save locations
@@ -221,6 +239,44 @@ if(errorcount > 0) {
       print(paste(errorcount, "files had download problems; run the Download
       Files section again to try those again."))
 }
+
+################################################################################
+# Copy files from the directory structure to the allPDFs folder for use by
+# the PDF search tools
+################################################################################
+
+copylist <- list.files(path = 
+        "G:/Defense Budget Documents/AutoDownloaded Archive/Comptroller",
+        full.names = TRUE, recursive = TRUE, include.dirs = FALSE)
+
+copylist <- append(copylist, list.files(path =
+        "G:/Defense Budget Documents/AutoDownloaded Archive/Army",
+        full.names = TRUE, recursive = TRUE))
+
+copylist <- append(copylist, list.files(path =
+        "G:/Defense Budget Documents/AutoDownloaded Archive/Navy",
+        full.names = TRUE, recursive = TRUE))
+
+copylist <- append(copylist, list.files(path =
+        "G:/Defense Budget Documents/AutoDownloaded Archive/AirForce",
+        full.names = TRUE, recursive = TRUE))
+
+
+destlist <- copylist %>% 
+    lapply(strsplit, "/") %>% 
+    lapply(unlist) %>%
+    lapply(tail, 1) %>% 
+    lapply(function(x){
+        file.path("G:","Defense Budget Documents", "AutoDownloaded Archive",
+                    "allPDFs", x)
+    })
+
+cat("\n\n\nCopying files to allPDFs folder\n\n\n")
+
+lapply(copylist, file.copy,
+       to = "G:/Defense Budget Documents/AutoDownloaded Archive/allPDFs",
+       overwrite = FALSE)
+
 
 # Cleanup: return to original working directory
 setwd(originalwd)

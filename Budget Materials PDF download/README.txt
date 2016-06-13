@@ -61,4 +61,4 @@ Sometimes the script will download a broken PDF, of file size 25 bytes, but with
 
 5. UPDATE THE PDF ARCHIVE
 
-Open Adobe Acrobat Pro, which most computers seem to already have.  Navigate to Tools > Document Processing > Full Text Index with Catalog.  You want to open index, then point it at "Complete Archive.pdx" in "G:/Defense Budget Documents/AutoDownloaded Archive".  Update the archive by selecting the AutoDownloaded Archive folder, which will include all PDFs in the subfolders.  This will take about an hour to run.
+Open Adobe Acrobat Pro, which most computers seem to already have.  Navigate to Tools > Document Processing > Full Text Index with Catalog.  You want to open index, then point it at "Complete Archive.pdx" in "G:/Defense Budget Documents/AutoDownloaded Archive".  Update the archive by selecting the folder for each source (Army, Navy, AirForce, Comptroller), which will include all PDFs in the subfolders.  Choose build archive (not rebuild, which will take longer).  This will take some time to run, possibly even overnight.
