@@ -1,0 +1,73 @@
+---
+title: "ARRA Processing"
+author: "Greg Sanders"
+date: "October 29, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(XLConnect)
+require(xlsx )
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r cars}
+
+wb<-loadWorkbook("Lookups\\TAS_Report.xls")
+setwd("K:\\Development\\Crisis-Funding")
+    wb<-loadWorkbook("Lookups\\TAS_Report.xls", create = TRUE)
+    FY09<-readWorksheet(wb, 
+                      sheet = "FY09",
+                      header = TRUE,
+                      dateTimeFormat = "%Y-%m-%d")
+    
+require(xlsx)
+    
+    
+ARRAlist<-read.csv("Lookups\\TAS_reports_FY09.csv",stringsAsFactors = FALSE)
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY10.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY11.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY12.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY13.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY14.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY15.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY16.csv"))
+ARRAlist<-rbind(ARRAlist,read.csv("Lookups\\TAS_reports_FY17.csv"))
+
+ARRAlist$freq<-1
+
+PIIDlist<-ddply(ARRAlist,
+                .(Referenced.IDV.PIID,PIID,Modification.Number,Transaction.Number),
+                plyr::summarise,
+                freq=sum(freq))
+write.csv(PIIDlist,"Lookups//Budget_ARRAcontractIdentifiers.csv")
+write.csv(ARRAlist,"Data//ARRAtransactions.csv")
+
+# FY11<-read.xls("Lookups\\TAS_Report.xls",3)
+# FY12<-read.xls("Lookups\\TAS_Report.xls",4)
+# FY13<-read.xls("Lookups\\TAS_Report.xls",5)
+# FY14<-read.xls("Lookups\\TAS_Report.xls",6)
+# FY15<-read.xls("Lookups\\TAS_Report.xls",7)
+# FY16<-read.xls("Lookups\\TAS_Report.xls",8)
+# FY17<-read.xls("Lookups\\TAS_Report.xls",9)
+# 
+# FY09<-read.csv("Lookups\\TAS_reports_FY09.csv")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
