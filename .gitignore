@@ -7,3 +7,4 @@ Data/defense_contract_CSIScontractID_detail.zip
 Data/defense_contract_CSIScontractID_detail.csv
 Data/defense_contract_CSIScontractID_model.csv
 *.db
+.Rproj.user
