@@ -19,8 +19,8 @@ options(warn=1)
 # debug(apply_lookups)
 # debug(CreateDuration)
 #*************************************Lookup Files*****************************************************
-Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
-# Path<-"~\\FPDS\\R scripts and data\\"
+# Path<-"K:\\2007-01 PROFESSIONAL SERVICES\\R scripts and data\\"
+Path<-"~\\R scripts and data\\"
 # Path<-"C:\\Users\\Greg Sanders\\SkyDrive\\Documents\\R Scripts and Data SkyDrive\\"
 
 require(plyr)
