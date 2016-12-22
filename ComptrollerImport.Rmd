@@ -74,7 +74,7 @@ c1data<-melt(c1data,
 
 
 c1sum<-ddply(c1data,
-      .(Account,AccountTitle,Organization,Fiscal.Year,BudgetType,variable),
+      .(Account,MilDeptDW,AccountTitle,Organization,Fiscal.Year,BudgetType,variable),
       plyr::summarise,
       value=sum(value)
       )
