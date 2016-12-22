@@ -14,7 +14,7 @@ require(XLConnect)
 
 
 Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
-# Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
+Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
@@ -30,7 +30,7 @@ Coloration<-subset(Coloration, variable!="")
 
 ```
 
-## R Markdown
+## C-1
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
@@ -44,43 +44,39 @@ c1data <- readWorksheet(c1xls, sheet = "FY 2015", header=TRUE,startRow=2)
 c1data$BudgetType<-'Base'
 c1dataOCO <- readWorksheet(c1xls, sheet = "FY 2015 OCO", header=TRUE,startRow=2)
 c1dataOCO$BudgetType<-'OCO'
-rm(c1dataOCO)
 c1data<-rbind(c1data,c1dataOCO)
-c1data<-apply_lookups(Path,c1data)
+rm(c1dataOCO)
 
-```
-
-```{r M-1}
-# Load workbook M1
-m1xls <- loadWorkbook(file.path("Data","FY2016","m1.xlsx"))
-m1data <- readWorksheet(m1xls, sheet = "Exhibit M-1", header=TRUE,startRow=2)
-m1data<-apply_lookups(Path,m1data)
+c1data<-standardize_variable_names(Path,c1data)
 
 
-```
+colnames(c1data)
+c1data$SourceFiscalYear<-2016
+c1data<-melt(c1data,
+                  id.vars=c("SourceFiscalYear",
+                            "Account",
+                            "MilDeptDW",
+                            "AccountTitle",
+                            "Organization" ,
+                            "BudgetActivity",
+                            "BudgetActivityTitle",
+                            "StateCountry",
+                            "StateCountryTitle",
+                            "Fiscal.Year",
+                            "FacilityCategoryTitle",
+                            "LocationTitle",
+                            "ConstructionProject",
+                            "ConstructionProjectTitle",
+                            "Classified",
+                            "BudgetType"
+                         )
+)
 
-```{r o-1}
-# Load workbook o1
-o1xls <- loadWorkbook(file.path("Data","FY2016","o1.xlsx"))
-o1data <- readWorksheet(o1xls, sheet = "Total O&M Title plus Indefinite", header=TRUE,startRow=2)
-o1data<-apply_lookups(Path,o1data)
 
-
-```
-
-
-
-```{r rf-1}
-# Load workbook rf1
-rf1xls <- loadWorkbook(file.path("Data","FY2016","rf1.xlsx"))
-rf1data <- readWorksheet(rf1xls, sheet = "RF Title", header=TRUE,startRow=2)
-rf1data<-apply_lookups(Path,rf1data)
-
-
-ddply(rf1data,
-      .(Account,Account.Title,Organization),
+c1sum<-ddply(c1data,
+      .(Account,AccountTitle,Organization,Fiscal.Year,BudgetType,variable),
       plyr::summarise,
-      FY.2014..Base...OCO.=sum(FY.2014..Base...OCO.)
+      value=sum(value)
       )
 
 
@@ -88,6 +84,116 @@ ddply(rf1data,
 ```
 
 
+##M-1
+```{r M-1}
+# Load workbook M1
+m1xls <- loadWorkbook(file.path("Data","FY2016","m1.xlsx"))
+m1data <- readWorksheet(m1xls, sheet = "Exhibit M-1", header=TRUE,startRow=2)
+m1data<-standardize_variable_names(Path,m1data)
+
+
+colnames(m1data)[colnames(m1data)=="Account"]<-"AccountDSI"
+colnames(m1data)
+m1data$SourceFiscalYear<-2016
+m1data<-melt(m1data,
+                  id.vars=c("SourceFiscalYear",
+                            "AccountDSI",
+                            "AccountTitle",
+                            "Organization" ,
+                            "BudgetActivity",
+                            "BudgetActivityTitle",
+                            "BudgetSubActivity",
+                            "BudgetSubActivityTitle",
+                            "AddOrNonAdd",
+                            "IncludeInTOA",
+                            "Classified"
+                         )
+)
+
+
+m1sum<-ddply(m1data,
+      .(AccountDSI,AccountTitle,Organization,variable),
+      plyr::summarise,
+      value=sum(value)
+      )
+
+
+
+```
+
+
+##O-1
+```{r o-1}
+# Load workbook o1
+o1xls <- loadWorkbook(file.path("Data","FY2016","o1.xlsx"))
+o1data <- readWorksheet(o1xls, sheet = "Total O&M Title plus Indefinite", header=TRUE,startRow=2)
+o1data<-standardize_variable_names(Path,o1data)
+
+colnames(o1data)[colnames(o1data)=="Account"]<-"AccountDSI"
+colnames(o1data)
+o1data$SourceFiscalYear<-2016
+o1data<-melt(o1data,
+                  id.vars=c("SourceFiscalYear",
+                            "AccountDSI",
+                            "AccountTitle",
+                            "Organization" ,
+                            "BudgetActivity",
+                            "BudgetActivityTitle",
+                            "AGtitle",
+                            "LineNumber",
+                            "SAG",
+                            "SAGtitle",
+                            "IncludeInTOA",
+                            "Classified"
+                         )
+)
+
+
+o1sum<-ddply(o1data,
+      .(AccountDSI,AccountTitle,Organization,variable),
+      plyr::summarise,
+      value=sum(value)
+      )
+
+```
+
+##RF-1
+
+```{r rf-1}
+# Load workbook rf1
+rf1xls <- loadWorkbook(file.path("Data","FY2016","rf1.xlsx"))
+rf1data <- readWorksheet(rf1xls, sheet = "RF Title", header=TRUE,startRow=2)
+rf1data<-standardize_variable_names(Path,rf1data)
+colnames(rf1data)[colnames(rf1data)=="Account"]<-"AccountDSI"
+colnames(rf1data)
+rf1data$SourceFiscalYear<-2016
+rf1data<-melt(rf1data,
+                  id.vars=c("SourceFiscalYear",
+                            "AccountDSI",
+                            "AccountTitle",
+                            "Organization" ,
+                            "BudgetActivity",
+                            "BudgetActivityTitle",
+                            "AGtitle",
+                            "LineNumber",
+                            "SAG",
+                            "SAGtitle",
+                            "Classified"
+                         )
+)
+
+
+rf1sum<-ddply(rf1data,
+      .(AccountDSI,AccountTitle,Organization,variable),
+      plyr::summarise,
+      value=sum(value)
+      )
+
+
+
+```
+
+##Procurement
 
 ```{r Procurement}
 # debug(create_procedural_graphs
@@ -280,7 +386,7 @@ write.csv(ProcurementConsolidated,paste("Data\\","P1_2017_Consolidated.csv",sep=
 str(ProcurementConsolidated)
 
 ```
-
+##RnD
 
 ```{r RnD}
 
