@@ -11,10 +11,10 @@ library(plyr)
 require(ggplot2)
 require(scales)
 require(XLConnect)
-
+require(reshape2)
 
 Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
-Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
+# Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
@@ -27,6 +27,53 @@ Coloration<-read.csv(
 
 #Clear out lines from the coloration CSV where no variable is listed.
 Coloration<-subset(Coloration, variable!="")
+
+
+ComptrollerMelt<-function(dfComptroller){
+  varlist<-c("SourceFiscalYear",
+             "AccountDSI",
+             "Account",
+             "MilDeptDW",
+             "AccountTitle",
+             "Organization" ,
+             "BudgetActivity",
+             "BudgetActivityTitle",
+             "BudgetSubActivity",
+             "BudgetSubActivityTitle",
+             "StateCountry",
+             "StateCountryTitle",
+             "Fiscal.Year",
+             "FacilityCategoryTitle",
+             "LocationTitle",
+             "ConstructionProject",
+             "ConstructionProjectTitle",
+             "AGtitle",
+             "BSA",
+             "BSAtitle",
+             "LineNumber",
+             "LineItem",
+             "LineItemTitle",
+             "ProgramElement",
+             "ProgramElementTitle",
+             "CostType",
+             "CostTypeTitle",
+             "LineNumber",
+             "SAG",
+             "SAGtitle",
+             "IncludeInTOA",
+             "AddOrNonAdd",
+             "IncludeInTOA",
+             "Classified",
+             "BudgetType"
+  )
+  
+  varlist<-varlist[varlist %in% colnames(dfComptroller) ]
+  melt(dfComptroller,
+       id.vars=varlist
+  )
+  
+}
+
 
 ```
 
@@ -48,29 +95,11 @@ c1data<-rbind(c1data,c1dataOCO)
 rm(c1dataOCO)
 
 c1data<-standardize_variable_names(Path,c1data)
-
+c1data<-ComptrollerMelt(c1data)
 
 colnames(c1data)
 c1data$SourceFiscalYear<-2016
-c1data<-melt(c1data,
-                  id.vars=c("SourceFiscalYear",
-                            "Account",
-                            "MilDeptDW",
-                            "AccountTitle",
-                            "Organization" ,
-                            "BudgetActivity",
-                            "BudgetActivityTitle",
-                            "StateCountry",
-                            "StateCountryTitle",
-                            "Fiscal.Year",
-                            "FacilityCategoryTitle",
-                            "LocationTitle",
-                            "ConstructionProject",
-                            "ConstructionProjectTitle",
-                            "Classified",
-                            "BudgetType"
-                         )
-)
+
 
 
 c1sum<-ddply(c1data,
@@ -95,20 +124,7 @@ m1data<-standardize_variable_names(Path,m1data)
 colnames(m1data)[colnames(m1data)=="Account"]<-"AccountDSI"
 colnames(m1data)
 m1data$SourceFiscalYear<-2016
-m1data<-melt(m1data,
-                  id.vars=c("SourceFiscalYear",
-                            "AccountDSI",
-                            "AccountTitle",
-                            "Organization" ,
-                            "BudgetActivity",
-                            "BudgetActivityTitle",
-                            "BudgetSubActivity",
-                            "BudgetSubActivityTitle",
-                            "AddOrNonAdd",
-                            "IncludeInTOA",
-                            "Classified"
-                         )
-)
+m1data<-ComptrollerMelt(m1data)
 
 
 m1sum<-ddply(m1data,
@@ -132,21 +148,7 @@ o1data<-standardize_variable_names(Path,o1data)
 colnames(o1data)[colnames(o1data)=="Account"]<-"AccountDSI"
 colnames(o1data)
 o1data$SourceFiscalYear<-2016
-o1data<-melt(o1data,
-                  id.vars=c("SourceFiscalYear",
-                            "AccountDSI",
-                            "AccountTitle",
-                            "Organization" ,
-                            "BudgetActivity",
-                            "BudgetActivityTitle",
-                            "AGtitle",
-                            "LineNumber",
-                            "SAG",
-                            "SAGtitle",
-                            "IncludeInTOA",
-                            "Classified"
-                         )
-)
+o1data<-ComptrollerMelt(o1data)
 
 
 o1sum<-ddply(o1data,
@@ -167,21 +169,7 @@ rf1data<-standardize_variable_names(Path,rf1data)
 colnames(rf1data)[colnames(rf1data)=="Account"]<-"AccountDSI"
 colnames(rf1data)
 rf1data$SourceFiscalYear<-2016
-rf1data<-melt(rf1data,
-                  id.vars=c("SourceFiscalYear",
-                            "AccountDSI",
-                            "AccountTitle",
-                            "Organization" ,
-                            "BudgetActivity",
-                            "BudgetActivityTitle",
-                            "AGtitle",
-                            "LineNumber",
-                            "SAG",
-                            "SAGtitle",
-                            "Classified"
-                         )
-)
-
+rf1data<-ComptrollerMelt(rf1data)
 
 rf1sum<-ddply(rf1data,
       .(AccountDSI,AccountTitle,Organization,variable),
@@ -223,26 +211,7 @@ Procurement$FY.2017.Total.Amount <- as.numeric(as.character(Procurement$FY.2017.
 Procurement$FY.2017.OCO.Quantity <- as.numeric(as.character(Procurement$FY.2017.OCO.Quantity))
 
 # View(subset(Procurement,FY.2016.Total.Enacted.Amount>0))
-
-Procurement<-melt(Procurement,
-                  id.vars=c("SourceFiscalYear"
-                            ,"AccountDSI"
-                         ,"AccountTitle"
-                         ,"Organization"
-                         ,"BudgetActivity"
-                         ,"BudgetActivityTitle"
-                         ,"LineNumber"
-                         ,"BSA"
-                         ,"BSAtitle"
-                         ,"LineItem"
-                         ,"LineItemTitle"
-                         ,"CostType"
-                         ,"CostTypeTitle"
-                         ,"AddOrNonAdd"
-                         ,"Classified"
-                         )
-)
-
+Procurement<-ComptrollerMelt(Procurement)
 
 
 
@@ -413,23 +382,8 @@ RnD$FY.2017.Total <- as.numeric(as.character(RnD$FY.2017.Total))
 
 
 RnD$LineNumber <- as.numeric(as.character(RnD$LineNumber))
+RnD<-ComptrollerMelt(RnD)
 
-
-RnD<-melt(RnD
-          , id.vars =c("SourceFiscalYear"
-                       ,"AccountDSI"
-                 ,"AccountTitle"
-                 ,"Organization"
-                 ,"BudgetActivity"
-                 ,"BudgetActivityTitle"
-                 ,"LineNumber"
-                 ,"ProgramElement"
-                 ,"ProgramElementTitle"
-                 ,"IncludeInTOA"
-                 ,"Classified"
-                 )
-          # ,value.name="DollarsThousands"
-)
 
 
 
