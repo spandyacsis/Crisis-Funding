@@ -5,6 +5,7 @@ Base.Enacted.Quantity,Comptroller,Quant_Base_App,QuantEnactedType,Base
 Base.Enacted.Amount,Comptroller,Base_App,EnactedType,Base
 OCO.Enacted.Quantity,Comptroller,Quant_OCO_App,QuantEnactedType,OCO
 OCO.Enacted.Amount,Comptroller,OCO_App,EnactedType,OCO
+OCO.Enacted.Amount..,Comptroller,OCO_App,EnactedType,OCO
 Total.Enacted.Quantity,Comptroller,Quant_App,EnactedTotalQuantity,Total
 Total.Enacted.Amount,Comptroller,App,EnactedTotal,Total
 Base.Quantity,Comptroller,Quant_Base_PB,QuantPBtype,Base
@@ -16,10 +17,12 @@ Total.Amount,Comptroller,PB,PBtotal,Total
 .Base...OCO.,Comptroller,Actual,ActualTotal,Total
 Base.Enacted,Comptroller,Base_App,EnactedType,Base
 OCO.Enacted,Comptroller,OCO_App,EnactedType,OCO
+..OCO.Enacted,Comptroller,OCO_App,EnactedType,OCO
 Total.Enacted,Comptroller,App,EnactedTotal,Total
 Base,Comptroller,Base_PB,PBtype,Base
 OCO,Comptroller,OCO_PB,PBtype,OCO
 Total,Comptroller,PB,PBtotal,Total
+Total..,Comptroller,PB,PBtotal,Total
 CR.Quant,Harrison,Quant_CR,QuantSpecialType,Total
 CR.OCO.Quant,Harrison,Quant_CR_OCO,QuantSpecialType,OCO
 Quant,Harrison,Quant_Actual,QuantActualTotal,Total
