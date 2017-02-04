@@ -13,8 +13,8 @@ require(scales)
 require(XLConnect)
 require(reshape2)
 
-Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
-# Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
+# Path<-"K:/2007-01 PROFESSIONAL SERVICES/R scripts and data/"
+Path<-"D:/Users/Greg Sanders/Documents/Development/R-scripts-and-data/"
 source(paste(Path,"lookups.r",sep=""))
 source(paste(Path,"helper.r",sep=""))
 
@@ -27,7 +27,7 @@ Coloration<-read.csv(
 
 #Clear out lines from the coloration CSV where no variable is listed.
 Coloration<-subset(Coloration, variable!="")
-
+SourceFolderList<-c("FY2015","FY2016","FY2017")
 
 ComptrollerMelt<-function(dfComptroller){
   varlist<-c("SourceFiscalYear",
@@ -181,17 +181,18 @@ ComptrollerOCObyAccount<-function(dfComptroller){
 ##Military Personnel Programs (M-1)
 ```{r MilPers}
 # Load workbook MilPers
-MilPersXLS <- loadWorkbook(file.path("Data","FY2016","m1.xlsx"))
-MilPersData <- readWorksheet(MilPersXLS, sheet = "Exhibit M-1", header=TRUE,startRow=2)
-MilPersData<-standardize_variable_names(Path,MilPersData)
-
-colnames(MilPersData)[colnames(MilPersData)=="Account"]<-"AccountDSI"
-colnames(MilPersData)
-MilPersData$SourceFiscalYear<-2016
-MilPersData<-ComptrollerMelt(MilPersData)
-MilPersData<-ComptrollerVariableRename(MilPersData)
-write.csv(MilPersData,"MilPers.csv")
-
+for(sfy in SourceFolderList){
+  MilPersXLS <- loadWorkbook(file.path("Data",sfy,"m1.xlsx"))
+  MilPersData <- readWorksheet(MilPersXLS, sheet = "Exhibit M-1", header=TRUE,startRow=2)
+  MilPersData<-standardize_variable_names(Path,MilPersData)
+  
+  colnames(MilPersData)[colnames(MilPersData)=="Account"]<-"AccountDSI"
+  colnames(MilPersData)
+  MilPersData$SourceFiscalYear<-as.numeric(subset(sfy,3,7))#Drop the FY from FY20XX
+  MilPersData<-ComptrollerMelt(MilPersData)
+  MilPersData<-ComptrollerVariableRename(MilPersData)
+  write.csv(MilPersData,"MilPers.csv")
+}
 
 ```
 
