@@ -260,15 +260,15 @@ pChgCeil<-ddply(pChgCeil,
 
 pChgCeil$pChange3Sig[pChgCeil$pChange3Sig==-Inf]<-NA
 pChgCeil$pChange3Sig[pChgCeil$pChange3Sig==Inf]<-NA
-
-pChgCeilAverage<-ddply(pChgCeil, 
-                .(Ceil), 
-                plyr::summarise, 
-                mean = wtd.mean(pChange3Sig,ContractCount),
-                sd   = sqrt(wtd.var(pChange3Sig,ContractCount))
-                # se   = sd / sqrt(ContractCount)
-                )
-
+# 
+# pChgCeilAverage<-ddply(pChgCeil, 
+#                 .(Ceil), 
+#                 plyr::summarise, 
+#                 mean = wtd.mean(pChange3Sig,ContractCount),
+#                 sd   = sqrt(wtd.var(pChange3Sig,ContractCount))
+#                 # se   = sd / sqrt(ContractCount)
+#                 )
+# 
 
 
 
@@ -288,20 +288,20 @@ pChgCeil$CRai <- cut2(
 
 ```{r CeilingBreachGraphs}
 
-ggplot(
-  data = pChgCeil,
-  aes_string(x = "pChange3Sig",
-             weights = "ContractCount")
-  ) + geom_histogram(binwidth=0.01) + 
-    facet_grid( Ceil ~ .,
-                scales = "free_y",
-                space = "free_y") +   
-    scale_y_log10("Number of Contracts")+
-    scale_x_continuous("Percentage of Cost-Ceiling-Raising Change Orders b
-                       y\nInitial Cost Ceiling (Current $ Value)",
-                       limits=c(-1.25,1.25), labels=percent)+
-    theme(axis.text.x=element_text(angle=90,size=1))+
-  geom_vline(data=pChgCeilAverage,aes(xintercept=mean),color="red")
+# ggplot(
+#   data = pChgCeil,
+#   aes_string(x = "pChange3Sig",
+#              weights = "ContractCount")
+#   ) + geom_histogram(binwidth=0.01) + 
+#     facet_grid( Ceil ~ .,
+#                 scales = "free_y",
+#                 space = "free_y") +   
+#     scale_y_log10("Number of Contracts")+
+#     scale_x_continuous("Percentage of Cost-Ceiling-Raising Change Orders b
+#                        y\nInitial Cost Ceiling (Current $ Value)",
+#                        limits=c(-1.25,1.25), labels=percent)+
+#     theme(axis.text.x=element_text(angle=90,size=1))+
+#   geom_vline(data=pChgCeilAverage,aes(xintercept=mean),color="red")
 
 
 
